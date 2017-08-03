@@ -1,0 +1,386 @@
+{
+    "Meta": {
+        "end": "2017-08-03 12:17:21.663565", 
+        "start": "2017-08-03 12:17:18.545867", 
+        "sys_args": [
+            "/home/mmphego/.virtualenv/Test/bin/nosetests", 
+            "-v", 
+            "-s", 
+            "--with-katreport"
+        ]
+    }, 
+    "nose.failure.Failure.runTest": {
+        "demo": false, 
+        "description": null, 
+        "err_obj": "(<type 'exceptions.AssertionError'>, AssertionError('\\n\\t\\tnose.failure.Failure.runTest\\n\\t\\tDid not reach the end of the test. Either the test did not end with Aqf.end() or there was a critical error.\\n\\t\\tTest failed because not all steps passed\\n\\t\\tnose.failure.Failure.runTest\\n\\t\\t',), <traceback object at 0x44108c0>)", 
+        "error_msg": "\n\t\tnose.failure.Failure.runTest\n\t\tDid not reach the end of the test. Either the test did not end with Aqf.end() or there was a critical error.\n\t\tTest failed because not all steps passed\n\t\tnose.failure.Failure.runTest\n\t\t", 
+        "group": "Nose", 
+        "label": "Runtest", 
+        "requirements": [], 
+        "status": "error", 
+        "steps": {}, 
+        "success": false, 
+        "systems": {
+            "ALL": true
+        }, 
+        "tb": "<traceback object at 0x44108c0>"
+    }, 
+    "nosekatreport.generic_test": {
+        "demo": false, 
+        "description": null, 
+        "err_obj": "(<type 'exceptions.AssertionError'>, AssertionError('\\n\\t\\tnosekatreport.generic_test\\n\\t\\tDid not reach the end of the test. Either the test did not end with Aqf.end() or there was a critical error.\\n\\t\\tTest failed because not all steps passed\\n\\t\\tnosekatreport.generic_test\\n\\t\\tgrand_decorator() takes at least 2 arguments (1 given)',), <traceback object at 0x4407d88>)", 
+        "error_msg": "\n\t\tnosekatreport.generic_test\n\t\tDid not reach the end of the test. Either the test did not end with Aqf.end() or there was a critical error.\n\t\tTest failed because not all steps passed\n\t\tnosekatreport.generic_test\n\t\tgrand_decorator() takes at least 2 arguments (1 given)", 
+        "group": "Nosekatreport", 
+        "label": "Generic Test", 
+        "requirements": [], 
+        "status": "error", 
+        "steps": {}, 
+        "success": false, 
+        "systems": {}, 
+        "tb": "<traceback object at 0x4407d88>"
+    }, 
+    "nosekatreport.nosekatreport.test_aqf.TestAqf.test_aqf_decorators": {
+        "aqf_auto_test": true, 
+        "demo": false, 
+        "description": null, 
+        "error_msg": "TBD. Still to do test.", 
+        "group": "Nosekatreport", 
+        "label": "Test Aqf Decorators", 
+        "requirements": [
+            "VR.EXAMPLE.FC.9", 
+            "VR.EXAMPLE.FC.6", 
+            "VR.EXAMPLE.FC.4"
+        ], 
+        "status": "tbd", 
+        "steps": {
+            "1": {
+                "_updated": true, 
+                "action": [
+                    {
+                        "msg": "start", 
+                        "time": "2017-08-03 12:17:19.653445", 
+                        "type": "control"
+                    }, 
+                    {
+                        "msg": "Test that the sensor has a value of 10", 
+                        "time": "2017-08-03 12:17:20.654750", 
+                        "type": "passed"
+                    }, 
+                    {
+                        "msg": "end", 
+                        "time": "2017-08-03 12:17:20.654767", 
+                        "type": "CONTROL"
+                    }
+                ], 
+                "description": "Setup", 
+                "error_msg": "Test that the sensor has a value of 10", 
+                "evaluation": [], 
+                "hop": false, 
+                "progress": [], 
+                "status": "passed", 
+                "step_start": "2017-08-03 12:17:19.653434", 
+                "success": true
+            }, 
+            "2": {
+                "_updated": true, 
+                "action": [
+                    {
+                        "msg": "start", 
+                        "time": "2017-08-03 12:17:20.654779", 
+                        "type": "control"
+                    }, 
+                    {
+                        "msg": "Check that the system_on switch is set.", 
+                        "time": "2017-08-03 12:17:20.654894", 
+                        "type": "passed"
+                    }, 
+                    {
+                        "msg": "end", 
+                        "time": "2017-08-03 12:17:20.654906", 
+                        "type": "CONTROL"
+                    }
+                ], 
+                "description": "Check is system in on.", 
+                "error_msg": "Check that the system_on switch is set.", 
+                "evaluation": [], 
+                "hop": false, 
+                "progress": [], 
+                "status": "passed", 
+                "step_start": "2017-08-03 12:17:20.654772", 
+                "success": true
+            }, 
+            "3": {
+                "_updated": true, 
+                "action": [
+                    {
+                        "msg": "start", 
+                        "time": "2017-08-03 12:17:20.654916", 
+                        "type": "control"
+                    }, 
+                    {
+                        "msg": "Check that \"hallo world\" is returned.", 
+                        "time": "2017-08-03 12:17:20.655017", 
+                        "type": "passed"
+                    }, 
+                    {
+                        "msg": "end", 
+                        "time": "2017-08-03 12:17:20.655028", 
+                        "type": "CONTROL"
+                    }
+                ], 
+                "description": "Read the first message from the system.", 
+                "error_msg": "Check that \"hallo world\" is returned.", 
+                "evaluation": [], 
+                "hop": false, 
+                "progress": [], 
+                "status": "passed", 
+                "step_start": "2017-08-03 12:17:20.654910", 
+                "success": true
+            }, 
+            "4": {
+                "_updated": true, 
+                "action": [
+                    {
+                        "msg": "start", 
+                        "time": "2017-08-03 12:17:20.655037", 
+                        "type": "control"
+                    }, 
+                    {
+                        "msg": "Skipped. We cannot switch the system off at the moment.", 
+                        "time": "2017-08-03 12:17:20.655137", 
+                        "type": "skipped"
+                    }, 
+                    {
+                        "msg": "end", 
+                        "time": "2017-08-03 12:17:20.655148", 
+                        "type": "CONTROL"
+                    }
+                ], 
+                "description": "Switch off.", 
+                "error_msg": "Skipped. We cannot switch the system off at the moment.", 
+                "evaluation": [], 
+                "hop": false, 
+                "progress": [], 
+                "status": "skipped", 
+                "step_start": "2017-08-03 12:17:20.655032", 
+                "success": true
+            }, 
+            "5": {
+                "_updated": true, 
+                "action": [
+                    {
+                        "msg": "start", 
+                        "time": "2017-08-03 12:17:20.655157", 
+                        "type": "control"
+                    }, 
+                    {
+                        "msg": "TBD. Still to do test.", 
+                        "time": "2017-08-03 12:17:20.655254", 
+                        "type": "tbd"
+                    }, 
+                    {
+                        "msg": "end", 
+                        "time": "2017-08-03 12:17:20.655267", 
+                        "type": "CONTROL"
+                    }
+                ], 
+                "description": "Test TBD.", 
+                "error_msg": "TBD. Still to do test.", 
+                "evaluation": [], 
+                "hop": false, 
+                "progress": [], 
+                "status": "tbd", 
+                "step_start": "2017-08-03 12:17:20.655152", 
+                "success": true
+            }
+        }, 
+        "success": true, 
+        "systems": {
+            "ALL": true
+        }
+    }, 
+    "nosekatreport.nosekatreport.test_aqf.TestAqf.test_aqf_decorators_2": {
+        "aqf_auto_test": true, 
+        "demo": false, 
+        "description": null, 
+        "error_msg": "Check that the sensor status is now false", 
+        "group": "Nosekatreport", 
+        "label": "Test Aqf Decorators 2", 
+        "requirements": [
+            "VR.EXAMPLE.FC.15", 
+            "VR.EXAMPLE.FC.16", 
+            "VR.EXAMPLE.FC.6"
+        ], 
+        "status": "passed", 
+        "steps": {
+            "1": {
+                "_updated": true, 
+                "action": [
+                    {
+                        "msg": "start", 
+                        "time": "2017-08-03 12:17:20.655726", 
+                        "type": "control"
+                    }, 
+                    {
+                        "msg": "Get status from sensor", 
+                        "time": "2017-08-03 12:17:20.655777", 
+                        "type": "progress"
+                    }, 
+                    {
+                        "msg": "Check that sensor status is true", 
+                        "time": "2017-08-03 12:17:20.655884", 
+                        "type": "passed"
+                    }, 
+                    {
+                        "msg": "end", 
+                        "time": "2017-08-03 12:17:20.655895", 
+                        "type": "CONTROL"
+                    }
+                ], 
+                "description": "Make sure the sensor give us a status.", 
+                "error_msg": "Check that sensor status is true", 
+                "evaluation": [], 
+                "hop": false, 
+                "progress": [], 
+                "status": "passed", 
+                "step_start": "2017-08-03 12:17:20.655717", 
+                "success": true
+            }, 
+            "2": {
+                "_updated": true, 
+                "action": [
+                    {
+                        "msg": "start", 
+                        "time": "2017-08-03 12:17:20.655905", 
+                        "type": "control"
+                    }, 
+                    {
+                        "msg": "Check that the sensor status is now false", 
+                        "time": "2017-08-03 12:17:20.656006", 
+                        "type": "passed"
+                    }, 
+                    {
+                        "msg": "end", 
+                        "time": "2017-08-03 12:17:20.656017", 
+                        "type": "CONTROL"
+                    }
+                ], 
+                "description": "Set the value of the sensor", 
+                "error_msg": "Check that the sensor status is now false", 
+                "evaluation": [], 
+                "hop": false, 
+                "progress": [], 
+                "status": "passed", 
+                "step_start": "2017-08-03 12:17:20.655900", 
+                "success": true
+            }
+        }, 
+        "success": true, 
+        "systems": {
+            "ALL": true
+        }
+    }, 
+    "nosekatreport.nosekatreport.test_aqf.TestAqf.test_aqf_decorators_3": {
+        "aqf_auto_test": true, 
+        "aqf_intrusive": 1, 
+        "demo": false, 
+        "description": null, 
+        "err_obj": "(<type 'exceptions.AssertionError'>, AssertionError(\"\\n\\t\\tnosekatreport.nosekatreport.test_aqf.TestAqf.test_aqf_decorators_3\\n\\t\\tDid not reach the end of the test. Either the test did not end with Aqf.end() or there was a critical error.\\n\\t\\tTest failed because not all steps passed\\n\\t\\tnosekatreport.nosekatreport.test_aqf.TestAqf.test_aqf_decorators_3\\n\\t\\t'NoneType' object is not callable\",), <traceback object at 0x4410830>)", 
+        "error_msg": "\n\t\tnosekatreport.nosekatreport.test_aqf.TestAqf.test_aqf_decorators_3\n\t\tDid not reach the end of the test. Either the test did not end with Aqf.end() or there was a critical error.\n\t\tTest failed because not all steps passed\n\t\tnosekatreport.nosekatreport.test_aqf.TestAqf.test_aqf_decorators_3\n\t\t'NoneType' object is not callable", 
+        "group": "Nosekatreport", 
+        "label": "Test Aqf Decorators 3", 
+        "requirements": [
+            "VR.CM.EXAMPLE.17"
+        ], 
+        "status": "error", 
+        "steps": {
+            "1": {
+                "action": [
+                    {
+                        "msg": "start", 
+                        "time": "2017-08-03 12:17:20.656374", 
+                        "type": "control"
+                    }
+                ], 
+                "description": "Setup", 
+                "evaluation": [], 
+                "hop": false, 
+                "progress": [], 
+                "status": "passed", 
+                "step_start": "2017-08-03 12:17:20.656365", 
+                "success": true
+            }
+        }, 
+        "success": false, 
+        "systems": {
+            "ALL": true
+        }, 
+        "tb": "<traceback object at 0x4410830>"
+    }, 
+    "nosekatreport.quick_test": {
+        "demo": false, 
+        "description": null, 
+        "err_obj": "(<type 'exceptions.AssertionError'>, AssertionError('\\n\\t\\tnosekatreport.quick_test\\n\\t\\tDid not reach the end of the test. Either the test did not end with Aqf.end() or there was a critical error.\\n\\t\\tTest failed because not all steps passed\\n\\t\\tnosekatreport.quick_test\\n\\t\\tgrand_decorator() takes at least 2 arguments (1 given)',), <traceback object at 0x43f7098>)", 
+        "error_msg": "\n\t\tnosekatreport.quick_test\n\t\tDid not reach the end of the test. Either the test did not end with Aqf.end() or there was a critical error.\n\t\tTest failed because not all steps passed\n\t\tnosekatreport.quick_test\n\t\tgrand_decorator() takes at least 2 arguments (1 given)", 
+        "group": "Nosekatreport", 
+        "label": "Quick Test", 
+        "requirements": [], 
+        "status": "error", 
+        "steps": {}, 
+        "success": false, 
+        "systems": {}, 
+        "tb": "<traceback object at 0x43f7098>"
+    }, 
+    "nosekatreport.test_aqf.TestAqf.test_aqf_decorators": {
+        "aqf_auto_test": true, 
+        "demo": false, 
+        "description": null, 
+        "group": "Nosekatreport", 
+        "label": "Test Aqf Decorators", 
+        "requirements": [
+            "VR.EXAMPLE.FC.9", 
+            "VR.EXAMPLE.FC.6", 
+            "VR.EXAMPLE.FC.4"
+        ], 
+        "steps": {}, 
+        "systems": {
+            "ALL": true
+        }
+    }, 
+    "nosekatreport.test_aqf.TestAqf.test_aqf_decorators_2": {
+        "aqf_auto_test": true, 
+        "demo": false, 
+        "description": null, 
+        "group": "Nosekatreport", 
+        "label": "Test Aqf Decorators 2", 
+        "requirements": [
+            "VR.EXAMPLE.FC.15", 
+            "VR.EXAMPLE.FC.16", 
+            "VR.EXAMPLE.FC.6"
+        ], 
+        "steps": {}, 
+        "systems": {
+            "ALL": true
+        }
+    }, 
+    "nosekatreport.test_aqf.TestAqf.test_aqf_decorators_3": {
+        "aqf_auto_test": true, 
+        "aqf_intrusive": 1, 
+        "demo": false, 
+        "description": null, 
+        "err_obj": "(<type 'exceptions.AssertionError'>, AssertionError(\"\\n\\t\\tnosekatreport.test_aqf.TestAqf.test_aqf_decorators_3\\n\\t\\tDid not reach the end of the test. Either the test did not end with Aqf.end() or there was a critical error.\\n\\t\\tTest failed because not all steps passed\\n\\t\\tnosekatreport.test_aqf.TestAqf.test_aqf_decorators_3\\n\\t\\t'NoneType' object is not callable\",), <traceback object at 0x4413710>)", 
+        "error_msg": "\n\t\tnosekatreport.test_aqf.TestAqf.test_aqf_decorators_3\n\t\tDid not reach the end of the test. Either the test did not end with Aqf.end() or there was a critical error.\n\t\tTest failed because not all steps passed\n\t\tnosekatreport.test_aqf.TestAqf.test_aqf_decorators_3\n\t\t'NoneType' object is not callable", 
+        "group": "Nosekatreport", 
+        "label": "Test Aqf Decorators 3", 
+        "requirements": [
+            "VR.CM.EXAMPLE.17"
+        ], 
+        "status": "error", 
+        "steps": {}, 
+        "success": false, 
+        "systems": {
+            "ALL": true
+        }, 
+        "tb": "<traceback object at 0x4413710>"
+    }
+}
