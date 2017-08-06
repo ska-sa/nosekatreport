@@ -1,37 +1,39 @@
 from __future__ import with_statement
 
-import datetime
-import json
-import logging
+
 import os
+import sys
+import json
+import time
+import string
+import logging
+import datetime
+import traceback
+import colors
+import tempfile
 import shutil
 import stat
 import subprocess
-import sys
-import tempfile
-import time
-import traceback
-
-import colors
-import numpy as np
-from nose.plugins import Plugin
 
 log = logging.getLogger('nose.plugins.nosekatreport')
-test_logger = logging.getLogger('mkat_fpga_tests')
+
 
 try:
     import matplotlib.pyplot
-    matplotlib.use('Agg', warn=False, force=True)
 except ImportError:
     log.info('Matplotlib not found, will not be able to add matplotlib figures')
 
-# try:
+#try:
 #    ReSTProducer
-# except NameError:
+#except NameError:
 #    from .rest_producer import ReStProducer
-# from .report import Report
+#from .report import Report
 
+
+from nose.plugins import Plugin
 __all__ = ['KatReportPlugin', 'Aqf', 'StoreTestRun']
+
+
 
 UNKNOWN = 'unknown'
 WAIVED = 'waived'
@@ -39,15 +41,51 @@ PASS = 'passed'
 ERROR = 'error'
 FAIL = 'failed'
 TBD = 'tbd'
-SKIP = 'skipped'
+SKIPPED = 'skipped'
 
-
-class TestFailed(AssertionError):
-    """Raise AssertionError when a test fails"""
-    pass
-
+#################################################################
+# Test and step results in json look something like this:
+#################################################################
+"""
+    "tests.operations.test_operations_demo.TestOperations.test_apply_pointing_corrections": {
+        "aqf_demo_test": true,
+        "demo": false,
+        "description": "Demonstrate that CAM apply pointing corrections.",
+        "group": "Operations",
+        "label": "Test Apply Pointing Corrections",
+        "requirements": [
+            "VR.CM.DEMO.CA.38"
+        ],
+        "status": "skipped",
+        "steps": {
+            "0": {
+                "_updated": true,
+                "action": [
+                    {
+                        "msg": "!!!! Timeframe c. !!!",
+                        "time": "2017-02-10 01:48:40.933539",
+                        "type": "skipped"
+                    },
+                    {
+                        "msg": "end",
+                        "time": "2017-02-10 01:48:40.933618",
+                        "type": "CONTROL"
+                    }
+                ],
+                "error_msg": "!!!! Timeframe c. !!!",
+                "status": "skipped",
+                "success": false
+            }
+        },
+        "success": false,
+        "systems": {
+            "ALL": true
+        }
+    },
+"""
 
 class StoreTestRun(object):
+
     """Class to store the state of the running test.
 
     Provide some additional helper functions for output formating.
@@ -55,9 +93,10 @@ class StoreTestRun(object):
     """
 
     def __init__(self):
-        self.test_run_data = {'Meta': {'start': str(datetime.datetime.utcnow()),
-                                       'end': None,
-                                       'sys_args': sys.argv}}
+        self.test_run_data = {'Meta':
+                              {'start': str(datetime.datetime.utcnow()),
+                               'end': None,
+                               'sys_args': sys.argv}}
         self.test_name = 'Unknown'
         self.step_counter = 0
         self.progress_counter = 0
@@ -66,7 +105,6 @@ class StoreTestRun(object):
         self.test_image_counter = 0
         self.requirements_file = None
         self.test_passed = True
-        self.test_failed = False
         self.test_skipped = False
         self.test_tbd = False
         self.test_waived = False
@@ -120,7 +158,7 @@ class StoreTestRun(object):
         if kwargs.get('description'):
             kwargs['description'] = str(kwargs['description']).strip()
         self._update_test(test_name, kwargs)
-        Aqf.log_line("=" * 80)  # Separation line
+        Aqf.log_line("="*80)  # Separation line
 
     def add_step(self, message=None, hop=False):
         """Add a step to a test."""
@@ -191,17 +229,14 @@ class StoreTestRun(object):
         prepended_filename = "{:04d}_{}_{:03d}_{}".format(
             self.step_counter, self.test_name, self.test_image_counter, base_filename)
         self.test_image_counter += 1
-        try:
-            shutil.copy(filename, os.path.join(self.image_tempdir, prepended_filename))
-        except IOError:
-            log.error('Failed to copy filename:%s to %s' % (filename, self.image_tempdir))
-        else:
-            final_filename = os.path.join('images', prepended_filename)
-            self._update_step({'_updated': True}, dict(type='image', filename=final_filename,
-                                                       caption=caption, alt=alt))
+        shutil.copy(filename, os.path.join(self.image_tempdir, prepended_filename))
+        final_filename = os.path.join('images', prepended_filename)
+        self._update_step({'_updated': True},
+                          dict(type='image', filename=final_filename,
+                               caption=caption, alt=alt))
 
-    def add_matplotlib_fig(self, filename, caption="", alt="", autoscale=False):
-
+    def add_matplotlib_fig(self, filename, caption="", alt="",
+                            close_fig=True):
         """Save current matplotlib figure to the report
 
         Parameters
@@ -215,23 +250,10 @@ class StoreTestRun(object):
             Alternative description for when an image cannot be displayed
 
         """
-        if autoscale:
-            matplotlib.pyplot.autoscale(tight=True)
-            try:
-                matplotlib.pyplot.tight_layout()
-            except ValueError:
-                pass
-        try:
-            matplotlib.pyplot.savefig(filename, bbox_inches='tight', dpi=200, format='png')
-        except Exception:
-            pass
-        else:
-            try:
-                matplotlib.pyplot.cla()
-            except Exception:
-                matplotlib.pyplot.clf()
-            self.add_image(filename, caption, alt)
-            # matplotlib.pyplot.close('all')
+        matplotlib.pyplot.savefig(filename)
+        if close_fig:
+            matplotlib.pyplot.close()
+        self.add_image(filename, caption, alt)
 
     def as_json(self):
         """Output report in json format.
@@ -247,16 +269,18 @@ class StoreTestRun(object):
         log_func = getattr(Aqf, "log_%s" % state)
         log_func(message)
         action = {'type': state, 'msg': message}
-        if state in [PASS, WAIVED, SKIP, TBD]:
+        if state in [PASS, WAIVED, TBD]:
             # Record step as a success
             step_success = True
-        else:  # UNKNOWN, ERROR, FAIL
+        else:  # UNKNOWN, ERROR, FAIL, SKIPPED
             # Record step as a failure
-            # stack = traceback.format_stack()
-            # action['stack'] = stack
+            if state not in [SKIPPED]:
+                # Do not add the traceback for skipped steps
+                stack = traceback.format_stack()
+                action['stack'] = stack
+                Aqf.log_traceback('Last 6 lines of stack:\n' +
+                                  ' '.join(stack[-7:-1]))
             step_success = False
-            # Aqf.log_traceback('Last 6 lines of stack:\n' +
-            #                  ' '.join(stack[-7:-1]))
 
         self._update_step({'status': state, 'success': step_success,
                            'error_msg': message}, action)
@@ -275,7 +299,7 @@ class StoreTestRun(object):
             data['tb'] = str(err_obj[2])
             if hasattr(err_obj[2], 'format_tb'):
                 data['traceback'] = err_obj[2].format_tb()
-                # data['stack'] = err_obj[2].format_stack()
+                data['stack'] = err_obj[2].format_stack()
 
         self._update_test(test_name, data)
 
@@ -325,15 +349,15 @@ class StoreTestRun(object):
         """Return the more critical ststus."""
         # Rolled up VR status of PASS/ SKIPPED /WAIVED must be checked: order
         # is FAIL/ERROR, TBD, SKIPPED, PASSED, WAIVED (Thus anything for which one
-        # step SKIP results in SKIP, anything of which all is PASSED but one is
+        # step SKIPPED results in SKIPPED, anything of which all is PASSED but one is
         # WAIVED results in PASSED)
-        status = [UNKNOWN,  # Dont know what happened
-                  PASS,  # Test Passed
-                  WAIVED,  # The test was waived.
-                  SKIP,  # Skip this test
-                  TBD,  # Test is to-be-done
-                  FAIL,  # Test Failed
-                  ERROR]  # Something went wrong
+        status = [UNKNOWN,   # Dont know what happened
+                  PASS,      # Test Passed
+                  WAIVED,    # The test was waived.
+                  SKIPPED,      # Skip this test
+                  TBD,       # Test is to-be-done
+                  FAIL,      # Test Failed
+                  ERROR]     # Something went wrong
         try:
             st1 = status.index(status1)
         except ValueError:
@@ -345,53 +369,78 @@ class StoreTestRun(object):
         return status[max(st1, st2)]
 
     def _update_step(self, data, action=None):
-        """Update the information of a step."""
+        """Update the information of a step.
+        data is a dict typically with keys: status, success, error_msg
+        """
+
         if action is None:
             action = {}
         if self.test_name not in self.test_run_data:
+            # Add  the test to test_run_data
             self.test_run_data[self.test_name] = {'steps': {}}
         elif 'steps' not in self.test_run_data[self.test_name]:
+            # Add 'steps' for this test
             self.test_run_data[self.test_name]['steps'] = {}
-        __ = self.test_run_data[self.test_name]['steps']
-        # __ is the internal reference to the steps list in a step.
-        if not __.get(self.step_counter):
-            __[self.step_counter] = data
-        else:
-            data['success'] = all([__[self.step_counter].get('success', True),
-                                   data.get('success', True)])
-            if 'status' in data:
-                new_status = self._comp_status(data['status'],
-                                               __[self.step_counter].get('status', PASS))
+        steps = self.test_run_data[self.test_name]['steps']
+        # 'steps' is the internal reference to the steps list in a step.
+        if not steps.get(self.step_counter):
+            # The first entry for this step_counter - just record the data as is
+            steps[self.step_counter] = data
+            # We are not calling _update_test here and it is OK for now because
+            # we always add another CONTROL "end" step which will execute
+            # the else part below and update the test, but it is a bit unsafe
+            # against future changes
 
-                if new_status != data.get('status'):
-                    data['status'] = new_status
+            # Make sure the test is updated
+            self._update_test(self.test_name,
+                                  {'status' : data.get('status', PASS),
+                                   'success': data.get('success', True),
+                                   'error_msg': data.get('error_msg', '')})
+        else:
+            # This is an update to the step information - process it
+            data['success'] = all([steps[self.step_counter].get('success', True),
+                                  data.get('success', True)])
+            if 'status' in data:
+                data['status'] = self._comp_status(data['status'],
+                                               steps[self.step_counter
+                                                  ].get('status', PASS))
+
                 self._update_test(self.test_name,
                                   {'status': data.get('status'),
                                    'success': data.get('success', True),
                                    'error_msg': data.get('error_msg', '')})
-            __[self.step_counter].update(data)
+            else:
+                # Make sure the test is updated
+                self._update_test(self.test_name,
+                                  {'success': data.get('success', True),
+                                   'error_msg': data.get('error_msg', '')})
+            steps[self.step_counter].update(data)
 
         # ACTION
         if action:
-            if 'action' not in __[self.step_counter]:
-                __[self.step_counter]['action'] = []
+            if 'action' not in steps[self.step_counter]:
+                steps[self.step_counter]['action'] = []
 
             action['time'] = str(datetime.datetime.utcnow())
-            __[self.step_counter]['action'].append(action)
+            steps[self.step_counter]['action'].append(action)
 
     def _update_test(self, test_name, data):
-        """Update the information of a test."""
+        """Update the information of a test.
+        data is a dict typically with keys: status, success, error_msg
+        """
+
         if not self.test_run_data.get(test_name):
             self.test_run_data[test_name] = {}
         if 'success' in data:
             data['success'] = all([data['success'],
-                                   self.test_run_data[test_name].get('success', True)])
+                                  self.test_run_data[test_name].get('success',
+                                                                    True)])
             self.test_passed = data['success']
         if 'status' in data:
             data['status'] = self._comp_status(
                 data['status'],
                 self.test_run_data[test_name].get('status', PASS))
-            self.test_skipped = data['status'] == SKIP
+            self.test_skipped = data['status'] == SKIPPED
             self.test_tbd = data['status'] == TBD
             self.test_waived = data['status'] == WAIVED
             if (self.test_run_data[test_name].get('status') !=
@@ -402,6 +451,7 @@ class StoreTestRun(object):
 
 
 class _state(object):
+
     """Class for storing state and progress."""
 
     report_name = 'katreport'  # dir name that reports are writen into
@@ -457,7 +507,7 @@ class KatReportPlugin(Plugin):
         _state.store.set_test_state(test.id(), PASS)
 
     def addSkip(self, test):
-        _state.store.set_test_state(test.id(), SKIP)
+        _state.store.set_test_state(test.id(), SKIPPED)
 
     def addTbd(self, test):
         _state.store.set_test_state(test.id(), TBD)
@@ -499,8 +549,8 @@ class KatReportPlugin(Plugin):
         for attr in [n for n in dir(test_method)
                      if n.startswith("aqf_")]:
             if attr.startswith('aqf_system_'):
-                aqf_attr['systems'][attr.replace("aqf_system_", "").upper()] = all(
-                    [getattr(test_method, attr)])
+                aqf_attr['systems'][attr.replace("aqf_system_", "").upper()
+                                    ] = all([getattr(test_method, attr)])
             else:
                 aqf_attr[attr] = getattr(test_method, attr)
 
@@ -513,13 +563,14 @@ class KatReportPlugin(Plugin):
 
         # Set the end time in the Json file.
         _state.store.test_run_data['Meta']["end"] = str(datetime.datetime.utcnow())
-
-        # Write the test results to the JSON file.
+        
+        #Write the test results to the JSON file.
         _state.store.write_test_results_json_file(os.path.join(_state.report_name,
-                                                               'katreport.json'))
+                                                  'katreport.json'))
 
 
 class AqfLog(type):
+
     """
     Catch all the method calls that start with log_.
 
@@ -534,7 +585,6 @@ class AqfLog(type):
                 for line in arg:
                     strip_name = name.replace("log_", "")
                     cls._log_msg(strip_name, str(line))
-
             return func
 
     def _severity_colour(self, severity):
@@ -596,6 +646,7 @@ class AqfLog(type):
 
 
 class Aqf(object):
+
     """Automatic Qualification Framework.
 
     The AQF class is used as a container to the public class methods.
@@ -628,18 +679,15 @@ class Aqf(object):
     @classmethod
     def progress(cls, message):
         """Add progress messages to the step."""
-        # _state.store.add_progress(message)
-        _state.store.add_progress(message)
+        #_state.store.add_progress(message)
         cls.log_progress(message)
-        # test_logger.info(message)
-
 
     @classmethod
     def hop(cls, message=None):
         """A internal step in a test section.
 
         Hop is like a step but hop is used for internal setup of the test
-        environment.
+        invironment.
         eg. Aqf.hop("Test that the antenna is stowed when X is set to Y")
 
         :param message: String. Message describe what the hop will test.
@@ -649,7 +697,6 @@ class Aqf(object):
             message = "Doing Setup"
         _state.store.add_step(message, hop=True)
         cls.log_hop(message)
-        test_logger.info(message)
 
     @classmethod
     def step(cls, message):
@@ -662,63 +709,13 @@ class Aqf(object):
         """
         _state.store.add_step(message)
         cls.log_step(message)
-        # test_logger.info(message)
-
-    @classmethod
-    def stepBold(cls, message):
-        """A step bolded in a test section.
-
-        eg. Aqf.stepBold("Test that the antenna is stowed when X is set to Y")
-
-        :param message: String. Message describe what the step will test.
-
-        """
-        try:
-            assert isinstance(message, list)
-        except AssertionError:
-            message = [message]
-        message = colors.bold('{:10s}'.format(''.join(message)))
-        _state.store.add_step(message)
-        cls.log_step(message)
-
-    @classmethod
-    def stepline(cls, message):
-        """A step underlined in a test section.
-
-        eg. Aqf.stepline("Test that the antenna is stowed when X is set to Y")
-
-        :param message: String. Message describe what the step will test.
-
-        """
-        try:
-            assert isinstance(message, list)
-        except AssertionError:
-            message = [message]
-        message = colors.underline(''.join(message))
-        _state.store.add_step(message)
-        cls.log_step(message)
-
-    @classmethod
-    def addLine(cls, linetype, count=80):
-        """A step in a test section with lines
-
-        eg. Aqf.step("Test that the antenna is stowed when X is set to Y")
-
-        :param linetype: String. linetype eg: * - _
-        :param count: Int. How long do you want your line to be.
-
-        """
-        message = linetype * count
-        _state.store.add_step(message, hop=True)
-        cls.log_step(message)
-        test_logger.info(message)
 
     @classmethod
     def image(cls, filename, caption='', alt=''):
         _state.store.add_image(filename, caption, alt)
 
     @classmethod
-    def matplotlib_fig(self, filename, caption="", alt="", autoscale=False):
+    def matplotlib_fig(self, filename, caption="", alt="", close_fig=True):
         """Save current matplotlib figure to the report
 
         Parameters
@@ -732,19 +729,21 @@ class Aqf(object):
             Alternative description for when an image cannot be displayed
 
         """
-        _state.store.add_matplotlib_fig(filename, caption, alt, autoscale)
+        _state.store.add_matplotlib_fig(filename, caption, alt,
+                                         close_fig=close_fig)
 
-    @classmethod
-    def substep(cls, message):
-        """A sub step of a step in a test section.
 
-        eg. Aqf.substep("Test that the antenna no 3 is stowed")
+    #@classmethod
+    #def substep(cls, message):
+    #    """A sub step of a step in a test section.
 
-        :param message: String. Message describe what the sub step will test.
+    #    eg. Aqf.substep("Test that the antenna no 3 is stowed")
 
-        """
-        _state.store.add_step(message)
-        cls.log_substep(message)
+    #    :param message: String. Message describe what the sub step will test.
+
+    #    """
+    #    _state.store.add_step(message)
+    #    cls.log_substep(message)
 
     @classmethod
     def passed(cls, message=None):
@@ -785,7 +784,7 @@ class Aqf(object):
         :param message: Optional String. Reason for skipping the test step.
 
         """
-        _state.store.set_step_state(SKIP, message)
+        _state.store.set_step_state(SKIPPED, message)
 
     @classmethod
     def tbd(cls, message=None):
@@ -812,8 +811,8 @@ class Aqf(object):
         :param message: String. Reason for skipping the test step.
 
         """
-        _state.store.add_step_waived(message)
-        #_state.store.set_step_state(WAIVED, message)
+        #_state.store.add_step_waived(message)
+        _state.store.set_step_state(WAIVED, message)
 
     @classmethod
     def equals(cls, result, expected, description):
@@ -843,109 +842,6 @@ class Aqf(object):
             return False
 
     @classmethod
-    def is_not_equals(cls, result, expected, description):
-        """Evaluate: expected result is not equals the obtained result.
-
-        Shortcut for: ::
-
-            if expected != result:
-                Aqf.pass()
-            else:
-                Aqf.failed(message)
-
-        :param result: The obtained value.
-        :param expected: The expected value.
-        :param description: A description of this test.
-
-        """
-
-        # Do not log EVALUATE step
-        # _state.store.add_step_evaluation(description)
-        if expected != result:
-            cls.passed(description)
-        else:
-            cls.failed("Expected '%s' got '%s' - %s" %
-                       (str(expected), str(result), description))
-
-    @classmethod
-    def array_abs_error(cls, result, expected, description, abs_error=0.1):
-        """
-        Compares absolute error in numeric result and logs to Aqf.
-
-        Parameters
-        ----------
-        result: numeric type or array of type
-            Actual result to be checked.
-        expected: Same as result
-            Expected result
-        description: String
-            Message describing the purpose of the comparison.
-        abs_err: float, optional
-            Fail if absolute error is not less than this abs_err for all array
-            elements
-
-        """
-        err = np.abs(np.array(expected) - np.array(result))
-        max_err_ind = np.argmax(err)
-        max_err = err[max_err_ind]
-        if max_err >= abs_error:
-            cls.failed('Absolute error larger than {abs_error}, max error at index {max_err_ind}, '
-                       'error: {max_err} - {description}'.format(**locals()))
-            return False
-        else:
-            cls.passed(description)
-            return True
-
-    @classmethod
-    def array_almost_equal(cls, result, expected, description, **kwargs):
-        """Compares numerical result to an expected value
-
-        Using numpy.testing.assert_almost_equal for the comparison
-
-        Parameters
-        ----------
-        result: numeric type or array of type
-            Actual result to be checked.
-        expected: Same as result
-            Expected result
-        description: String
-            Message describing the purpose of the comparison.
-        **kwargs : keyword arguments
-            Passed on to numpy.testing.assert_almost_equal. You probably want to use the
-            `decimal` kwarg to specify how many digits after the decimal point is compared.
-        """
-        try:
-            np.testing.assert_almost_equal(result, expected, **kwargs)
-        except AssertionError:
-            cls.failed("Expected '%s' got '%s' - %s" %
-                       (str(expected), str(result), description))
-        else:
-            cls.passed(description)
-
-    @classmethod
-    def in_range(cls, result, expected_min, expected_max, description):
-        """Evaluates: obtained result to a minimum and maximum expected value (interval comparison)
-
-        Parameters
-        ----------
-        result: numeric type
-            Actual result to be checked.
-        expected minimum: numeric type
-            Expected minimum result to be checked against actual results
-        expected maximum: numeric type
-            Expected maximum result to be checked against actual results
-        description: String
-            Message describing the purpose of the comparison.
-        """
-        try:
-            assert expected_min <= result <= expected_max
-        except AssertionError:
-            cls.failed("Actual value '%s' is not between '%s' and '%s' -  %s" % (
-                str(result), str(expected_min), str(expected_max), description))
-        else:
-            cls.passed(description)
-
-    @classmethod
     def less(cls, result, expected, description):
         """Evaluate: obtained result less than the expected value.
 
@@ -962,37 +858,12 @@ class Aqf(object):
 
         """
 
-        if result <= expected:
+        if  result < expected:
             cls.passed(description)
             return True
         else:
             cls.failed('Result {result} not less than {expected} - {description}'
-                       .format(**locals()))
-            return False
-
-    @classmethod
-    def more(cls, result, expected, description):
-        """Evaluate: obtained result more than the expected value.
-
-        Shortcut for: ::
-
-            if result > expected:
-                Aqf.pass()
-            else:
-                Aqf.failed('Result: {result} not less than {expected}')
-
-        :param result: The obtained value.
-        :param expected: The expected value.
-        :param description: A description of this test.
-
-        """
-
-        if result >= expected:
-            cls.passed(description)
-            return True
-        else:
-            cls.failed('Result {result} not less than {expected} - {description}'
-                       .format(**locals()))
+                       .format(**locals()) )
             return False
 
     @classmethod
@@ -1079,20 +950,20 @@ class Aqf(object):
     @classmethod
     def checkbox(cls, description):
         """Mark a step that should be manually confirmed."""
-        # _state.store.mark_test_as_demo()
+        #_state.store.mark_test_as_demo()
         cls.log_checkbox(description)
         if not _state.config.get('demo'):
             cls.log_checkbox("PASSED / FAILED")
             status = PASS
         else:
             cls.log_checkbox("PASSED / FAILED      <--- Press Any Key To Continue --->")
-            key = wait_for_key(-1)  # No timeout
+            key = wait_for_key(-1) # No timeout
             sys.stderr.write("\r" + " " * 40 + "\n")
             if key is False:
                 cls.log_checkbox("Continue from timeout")
                 status = FAIL
             else:
-                # cls.log_checkbox("Continue on key %s" % key)
+                #cls.log_checkbox("Continue on key %s" % key)
                 status = PASS
         _state.store.add_step_checkbox(description, status)
 
@@ -1102,20 +973,20 @@ class Aqf(object):
         Mark a step that should wait for a key before continuing.
         Don't print PASSED/FAILED
         """
-        # _state.store.mark_test_as_demo()
+        #_state.store.mark_test_as_demo()
         cls.log_keywait(description)
         if not _state.config.get('demo'):
             cls.log_keywait("Wait on keypress")
             status = PASS
         else:
             cls.log_keywait("                     <--- Press Any Key To Continue --->")
-            key = wait_for_key(-1)  # No timeout
+            key = wait_for_key(-1) # No timeout
             sys.stderr.write("\r" + " " * 40 + "\n")
             if key is False:
                 cls.log_keywait("Continue from timeout")
                 status = FAIL
             else:
-                # cls.log_keywait("Continue on key %s" % key)
+                #cls.log_keywait("Continue on key %s" % key)
                 status = PASS
         _state.store.add_step_keywait(description, status)
 
@@ -1134,7 +1005,7 @@ class Aqf(object):
         os._exit(1)
 
     @classmethod
-    def end(cls, passed=None, message=None, traceback=None):
+    def end(cls, passed=None, message=None):
         """Mark the end of the test.
 
         Every test needs one of these at the end. This method will do the
@@ -1145,15 +1016,11 @@ class Aqf(object):
         :param message: Optional string. Message to add to passed of failed.
 
         """
-        if not traceback:
-            sys.tracebacklimit = 0  # Disabled Traceback report
 
         if passed is True:
             cls.passed(message)
         elif passed is False:
             cls.failed(message)
-            _state.store.test_failed = True  # , ("Test failed because not all steps passed\n\t\t%s\n\t\t%s" %
-            # (_state.store.test_name, _state.store.error_msg))
 
         _state.store.test_ack = True
         _state.store._update_step({'_updated': True},
@@ -1161,27 +1028,10 @@ class Aqf(object):
         if _state.store.test_skipped or _state.store.test_tbd or _state.store.test_waived:
             import nose
             raise nose.plugins.skip.SkipTest
-        elif _state.store.test_failed:
-            _state.store.test_failed = False
-            fail_message = ("\n\nNot all test steps passed\n\t"
-                                "Test Name: %s\n\t"
-                                "Failure Message: %s\n"%(_state.store.test_name,
-                                    _state.store.error_msg))
-            fail_message = '\033[91m\033[1m %s \033[0m' %(fail_message)
-            raise TestFailed(fail_message)
         else:
-            try:
-                assert _state.store.test_passed
-            except AssertionError:
-                fail_message = ("\n\nNot all test steps passed\n\t"
-                                "Test Name: %s\n\t"
-                                "Failure Message: %s\n"%(_state.store.test_name,
-                                    _state.store.error_msg))
-                fail_message = '\033[91m\033[1m %s \033[0m' %(fail_message)
-                raise TestFailed(fail_message)
-
-                # assert _state.store.test_passed, ("Test failed because not all steps passed\n\t\t%s\n\t\t%s" %
-                # (_state.store.test_name, _state.store.error_msg))
+            assert _state.store.test_passed, \
+                ("Test failed because not all steps passed\n\t\t%s\n\t\t%s" %
+                    (_state.store.test_name, _state.store.error_msg))
 
 
 def wait_for_key(timeout=-1):
@@ -1212,7 +1062,7 @@ def wait_for_key(timeout=-1):
     try:
         while result is None:
             try:
-                # c = sys.stdin.read(1)
+                #c = sys.stdin.read(1)
                 c = sys.stdin.read()
                 result = repr(c)
             except IOError:

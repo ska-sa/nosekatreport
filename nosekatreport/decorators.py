@@ -1,15 +1,14 @@
 ###############################################################################
 # SKA South Africa (http://ska.ac.za/)                                        #
-# Author: cbf@ska.ac.za                                                       #
-# Copyright @ 2016 SKA SA. All rights reserved.                               #
+# Author: cam@ska.ac.za                                                       #
+# Copyright @ 2013 SKA SA. All rights reserved.                               #
 #                                                                             #
 # THIS SOFTWARE MAY NOT BE COPIED OR DISTRIBUTED IN ANY FORM WITHOUT THE      #
 # WRITTEN PERMISSION OF SKA SA.                                               #
 ###############################################################################
-__all__ = ['satisfies_requirement', 'satisfies_vr', 'site_only', 'site_acceptance', 'generic_test',
-           'system', 'aqf_requirements', 'aqf_vr', 'intrusive', 'slow',
-           'instrument_bc8n856M4k', 'instrument_bc16n856M4k', 'instrument_bc32n856M4k',
-           'instrument_bc8n856M32k', 'instrument_bc16n856M32k', 'instrument_bc32n856M32k',  ]
+__all__ = ['satisfies_requirement', 'satisfies_vr',
+           'site_only', 'site_acceptance',
+           'system', 'aqf_requirements', 'aqf_vr', 'intrusive', 'slow']
 
 
 def grand_decorator(name, gd_func, *gd_args):
@@ -143,157 +142,6 @@ def site_only(*args):
     """
     return grand_decorator('site_only', *args)
 
-def generic_test(*args):
-    """Tag the test method or object as generic_test.
-
-    This test will always run regardless the mode
-
-    Usage example on test method: ::
-
-        @generic_test()
-        def test_generic_test_01(self):
-
-    Usage example on test class: ::
-
-        @generic_test()
-        class TestGeneric(unittest.TestCase):
-
-    This decorator can be assigned by @generic_test or @generic_test()
-
-    :return: Function.
-
-    """
-    return grand_decorator('generic_test', *args)
-
-def instrument_bc8n856M4k(*args):
-    """Tag the test method or object as instrument_bc8n856M4k.
-
-    This test will only run tests decorated with/including bc8n856M4k mode
-
-    Usage example on test method: ::
-
-        @instrument_bc8n856M4k()
-        def test_generic_test_01(self):
-
-    Usage example on test class: ::
-
-        @instrument_bc8n856M4k()
-        class TestGeneric(unittest.TestCase):
-
-    This decorator can be assigned by @instrument_bc8n856M4k or @instrument_bc8n856M4k()
-
-    :return: Function.
-
-    """
-    return grand_decorator('instrument_bc8n856M4k', *args)
-
-def instrument_bc16n856M4k(*args):
-    """Tag the test method or object as instrument_bc16n856M4k.
-
-    This test will only run tests decorated with/including bc16n856M4k mode
-
-    Usage example on test method: ::
-
-        @instrument_bc16n856M4k()
-        def test_generic_test_01(self):
-
-    Usage example on test class: ::
-
-        @instrument_bc16n856M4k()
-        class TestGeneric(unittest.TestCase):
-
-    This decorator can be assigned by @instrument_bc16n856M4k or @instrument_bc16n856M4k()
-
-    :return: Function.
-
-    """
-    return grand_decorator('instrument_bc16n856M4k', *args)
-
-def instrument_bc32n856M4k(*args):
-    """Tag the test method or object as instrument_bc32n856M4k.
-
-    This test will only run tests decorated with/including bc32n856M4k mode
-
-    Usage example on test method: ::
-
-        @instrument_bc32n856M4k()
-        def test_generic_test_01(self):
-
-    Usage example on test class: ::
-
-        @instrument_bc32n856M4k()
-        class TestGeneric(unittest.TestCase):32
-    This decorator can be assigned by @instrument_bc8n856M4k or @instrument_bc8n856M4k()
-
-    :return: Function.
-
-    """
-    return grand_decorator('instrument_bc32n856M4k', *args)
-
-def instrument_bc8n856M32k(*args):
-    """Tag the test method or object as instrument_bc8n856M32k.
-
-    This test will only run tests decorated with/including bc8n856M32k mode
-
-    Usage example on test method: ::
-
-        @instrument_bc8n856M32k()
-        def test_generic_test_01(self):
-
-    Usage example on test class: ::
-
-        @instrument_bc8n856M32k()
-        class TestGeneric(unittest.TestCase):
-
-    This decorator can be assigned by @instrument_bc8n856M32k or @instrument_bc8n856M32k()
-
-    :return: Function.
-
-    """
-    return grand_decorator('instrument_bc8n856M32k', *args)
-
-def instrument_bc16n856M32k(*args):
-    """Tag the test method or object as instrument_bc16n856M32k.
-
-    This test will only run tests decorated with/including bc16n856M32k mode
-
-    Usage example on test method: ::
-
-        @instrument_bc16n856M32k()
-        def test_generic_test_01(self):
-
-    Usage example on test class: ::
-
-        @instrument_bc16n856M32k()
-        class TestGeneric(unittest.TestCase):
-
-    This decorator can be assigned by @instrument_bc16n856M32k or @instrument_bc16n856M32k()
-
-    :return: Function.
-
-    """
-    return grand_decorator('instrument_bc16n856M32k', *args)
-
-def instrument_bc32n856M32k(*args):
-    """Tag the test method or object as instrument_bc32n856M32k.
-
-    This test will only run tests decorated with/including bc32n856M32k mode
-
-    Usage example on test method: ::
-
-        @instrument_bc32n856M32k()
-        def test_generic_test_01(self):
-
-    Usage example on test class: ::
-
-        @instrument_bc32n856M32k()
-        class TestGeneric(unittest.TestCase):
-    This decorator can be assigned by @instrument_bc8n856M32k or @instrument_bc8n856M32k()
-
-    :return: Function.
-
-    """
-    return grand_decorator('instrument_bc32n856M32k', *args)
 
 def system(*systems, **system_kwargs):
     """Decorator to indicate to which systems this test applies.
