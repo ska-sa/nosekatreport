@@ -9,7 +9,9 @@
 """ ."""
 
 import unittest
-from nosekatreport import Aqf, aqf_vr, system, slow, intrusive, site_only, site_acceptance
+
+from nosekatreport import (Aqf, aqf_vr, system, slow, intrusive,
+                           site_only, site_acceptance)
 
 
 @system('all')
@@ -60,7 +62,7 @@ class TestAqf(unittest.TestCase):
         Aqf.is_false(status, "Check that the sensor status is now false")
         Aqf.end()
 
-    # @intrusive
+    @intrusive
     @aqf_vr('VR.CM.EXAMPLE.17')
     def test_aqf_decorators_3(self):
         Aqf.step("Setup")

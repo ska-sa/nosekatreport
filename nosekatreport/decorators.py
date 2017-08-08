@@ -1,15 +1,16 @@
 ###############################################################################
 # SKA South Africa (http://ska.ac.za/)                                        #
-# Author: cbf@ska.ac.za                                                       #
-# Copyright @ 2016 SKA SA. All rights reserved.                               #
+# Author: cam@ska.ac.za                                                       #
+# Copyright @ 2013 SKA SA. All rights reserved.                               #
 #                                                                             #
 # THIS SOFTWARE MAY NOT BE COPIED OR DISTRIBUTED IN ANY FORM WITHOUT THE      #
 # WRITTEN PERMISSION OF SKA SA.                                               #
 ###############################################################################
-__all__ = ['satisfies_requirement', 'satisfies_vr', 'site_only', 'site_acceptance', 'generic_test',
+__all__ = ['satisfies_requirement', 'satisfies_vr',
+           'site_only', 'site_acceptance',
            'system', 'aqf_requirements', 'aqf_vr', 'intrusive', 'slow',
            'instrument_bc8n856M4k', 'instrument_bc16n856M4k', 'instrument_bc32n856M4k',
-           'instrument_bc8n856M32k', 'instrument_bc16n856M32k', 'instrument_bc32n856M32k',  ]
+           'instrument_bc8n856M32k', 'instrument_bc16n856M32k', 'instrument_bc32n856M32k']
 
 
 def grand_decorator(name, gd_func, *gd_args):
@@ -294,6 +295,7 @@ def instrument_bc32n856M32k(*args):
 
     """
     return grand_decorator('instrument_bc32n856M32k', *args)
+
 
 def system(*systems, **system_kwargs):
     """Decorator to indicate to which systems this test applies.

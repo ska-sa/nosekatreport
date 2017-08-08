@@ -12,22 +12,20 @@ calls to nose_kat_report
 Installation
 ============
 
-From mkat_fpga_tests/nosekatreport install nosekatreport package:
+From integration_tests/nosekatreport install nosekatreport package:
 
 ::
 
-    sudo pip install . 
+    sudo pip install .
 
 
 Invocation
 ==========
 
-The simple way (from mkat_fpga_tests directory)::
+The simple way (from integration_tests directory)::
 
   nosetests --with-katreport tests
 
-DEPRECATED
-==========
 
 A utility script is provided to assist with running the test with the correct filters::
 
@@ -60,7 +58,7 @@ The *run_aqf.py* script has several options. Please see *run_aqf.py --help* for 
                              skip and results. 'results' will print the
                              katreport[_accept].json test results
        --nose          additional arguments to pass to nose e.g. --nose=--collect-only or --nose=--logging-level=DEBUG
-       
+
 
 Options can be mixed. Multiple tests can be given on the command line in a format that nose understands.
 Tests can be granularly executed up to the test method. eg.::
@@ -78,9 +76,11 @@ Overview and Usage
 
 Typical AQF usage for Qualfication/Acceptance
 
-*Update test decoratirs and CORE export:
+* Update test decorators and CORE export:
 
-  * Update CORE and export MeerKAT.xml, commit MeerKAT.xml to svn/katscripts/mkat_fpga_tests/supplemental
+  * Update CORE and export MeerKAT.xml.
+  * Compress the xml file, run command:  bzip2 MeerKAT.xml
+  * Commit MeerKAT.xml.bzip2 to katscripts/integration_tests/supplemental.
   * Update all the decorators and VR links (aqf_vr) in the tests.
 
 * Perform the test runs:
@@ -89,17 +89,17 @@ Typical AQF usage for Qualfication/Acceptance
 
   	python run_aqf.py ; python run_aqf.py --accept
 
-  * This produces the Qualfication results and reports in svn/katscripts/mkat_fpga_tests/katreport/*.json
-  * and the Acceptance results and reports in svn/katscripts/mkat_fpga_tests/katreport_accept/*.json
+  * This produces the Qualfication results and reports in svn/katscripts/integration_tests/katreport/*.json
+  * and the Acceptance results and reports in svn/katscripts/integration_tests/katreport_accept/*.json
   * The test results land in katreport[_accept]/katreport.json
   * The reports produced are Qualification|Acceptance Testing|Demonstration Procedure|Results.
 
 * Producing aqf_index.json for demo runs:
   * Once you are happy with the test results and all test decorators are done, then produce the aqf_index through: ::
-  
+
   	python run_aqf.py --report=aqf_index
 
-  * Copy katreport/aqf_index.json to svn/katscripts/mkat_fpga_tests/aqf_index.json and commit to SVN
+  * Copy katreport/aqf_index.json to svn/katscripts/integration_tests/aqf_index.json and commit to SVN
 
 * Perform the Demonstration event:
   * --rundemo=all,all   # to specify all timescales and all VRs
@@ -116,7 +116,7 @@ General Options
 
 ``--katreport-option``
   Description of some option
-  
+
 ``nosetests --help``
 
 ::
@@ -159,7 +159,7 @@ the report.
 Decorators
 ==========
 
-Requirements are added to a test with decorators, the reporting system will update the 
+Requirements are added to a test with decorators, the reporting system will update the
 report with information from the CORE system based on the requirement given. Decorators are also used for filtering the tests so the correct test will run on the correct system.
 
 The decorator can be used several times on the same method or function and
@@ -202,7 +202,7 @@ Note the following with regards the VR format and its implication:
 
 * The CAM system uses the VR format VR.CM.AUTO/DEMO/SITE.GGG.nnn
   where GGG is a grouping and nnn is a number.
-* Tests are flagged with aqf_site_test, aqf_demo_test and aqf_auto_test from the VR name. 
+* Tests are flagged with aqf_site_test, aqf_demo_test and aqf_auto_test from the VR name.
   These test flags are passed to nose (by run_aqf.py) to select the tests to be included in the run
 * QUALIFICATION TESTING event: includes all AUTO tests
 * QUALIFICATION DEMONSTRATION event: includes all DEMO tests
@@ -253,7 +253,7 @@ Setup AQF in ipython after cam and sim objects has been created: ::
     Aqf.ipython()
 
 Now Aqf sensor can be used in a similar manner as you would call it in a test: ::
-    
+
     aqf_sensor = Aqf.sensor('sim.asc.sensor.wind_speed')
     val = aqf_sensor.get()
     aqf_sensor.set(val + 1)
@@ -280,4 +280,3 @@ Version History
 0.1
   * Initial release
   * Hope it does something one day
-
