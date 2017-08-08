@@ -79,6 +79,10 @@ SKIPPED = 'skipped'
     },
 """
 
+class TestFailed(AssertionError):
+    """Raise AssertionError when a test fails"""
+    pass
+
 class StoreTestRun(object):
 
     """Class to store the state of the running test.
@@ -690,7 +694,8 @@ class Aqf(object):
     @classmethod
     def progress(cls, message):
         """Add progress messages to the step."""
-        #_state.store.add_progress(message)
+        # LVDH - this add_progress was commented out for CBF
+        _state.store.add_progress(message)
         cls.log_progress(message)
 
     @classmethod
@@ -1231,15 +1236,12 @@ class Aqf(object):
         else:
             # LVDH - this was added by CBF ??? the try .. except
             try:
-                assert _state.store.test_passed, \
-                    ("Test failed because not all steps passed\n\t\t%s\n\t\t%s" %
-                    (_state.store.test_name, _state.store.error_msg))
+                fail_msg = ("\nTest failed because not all steps passed\n\t"
+                    "Test Name: %s\n\t"
+                    "Failure Message: %s\n"%(_state.store.test_name,
+                    _state.store.error_msg))
+                assert _state.store.test_passed, fail_msg
             except AssertionError:
-                fail_message = ("\n\nNot all test steps passed\n\t"
-                                "Test Name: %s\n\t"
-                                "Failure Message: %s\n"%(_state.store.test_name,
-                                    _state.store.error_msg))
-                fail_message = '\033[91m\033[1m %s \033[0m' %(fail_message)
                 raise TestFailed(fail_message)
 
 def wait_for_key(timeout=-1):
