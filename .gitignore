@@ -36,6 +36,10 @@ wheels/
 pip-log.txt
 pip-delete-this-directory.txt
 
+# AQF results
+katreport/
+katreport_accept/
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
