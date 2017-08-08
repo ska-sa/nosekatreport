@@ -20,14 +20,9 @@ log = logging.getLogger('nose.plugins.nosekatreport')
 
 try:
     import matplotlib.pyplot
+    matplotlib.use('Agg', warn=False, force=True)
 except ImportError:
     log.info('Matplotlib not found, will not be able to add matplotlib figures')
-
-#try:
-#    ReSTProducer
-#except NameError:
-#    from .rest_producer import ReStProducer
-#from .report import Report
 
 
 from nose.plugins import Plugin
@@ -229,14 +224,17 @@ class StoreTestRun(object):
         prepended_filename = "{:04d}_{}_{:03d}_{}".format(
             self.step_counter, self.test_name, self.test_image_counter, base_filename)
         self.test_image_counter += 1
-        shutil.copy(filename, os.path.join(self.image_tempdir, prepended_filename))
-        final_filename = os.path.join('images', prepended_filename)
-        self._update_step({'_updated': True},
-                          dict(type='image', filename=final_filename,
-                               caption=caption, alt=alt))
+        try:
+            shutil.copy(filename, os.path.join(self.image_tempdir, prepended_filename))
+        except IOError:
+            log.error('Failed to copy filename:%s to %s' % (filename, self.image_tempdir))
+        else:
+            final_filename = os.path.join('images', prepended_filename)
+            self._update_step({'_updated': True}, dict(type='image', filename=final_filename,
+                                                       caption=caption, alt=alt))
 
-    def add_matplotlib_fig(self, filename, caption="", alt="",
-                            close_fig=True):
+    def add_matplotlib_fig(self, filename, caption="", alt="", autoscale=False):
+
         """Save current matplotlib figure to the report
 
         Parameters
@@ -250,10 +248,23 @@ class StoreTestRun(object):
             Alternative description for when an image cannot be displayed
 
         """
-        matplotlib.pyplot.savefig(filename)
-        if close_fig:
-            matplotlib.pyplot.close()
-        self.add_image(filename, caption, alt)
+        if autoscale:
+            matplotlib.pyplot.autoscale(tight=True)
+            try:
+                matplotlib.pyplot.tight_layout()
+            except ValueError:
+                pass
+        try:
+            matplotlib.pyplot.savefig(filename, bbox_inches='tight', dpi=200, format='png')
+        except Exception:
+            pass
+        else:
+            try:
+                matplotlib.pyplot.cla()
+            except Exception:
+                matplotlib.pyplot.clf()
+            self.add_image(filename, caption, alt)
+            # matplotlib.pyplot.close('all')
 
     def as_json(self):
         """Output report in json format.
@@ -563,7 +574,7 @@ class KatReportPlugin(Plugin):
 
         # Set the end time in the Json file.
         _state.store.test_run_data['Meta']["end"] = str(datetime.datetime.utcnow())
-        
+
         #Write the test results to the JSON file.
         _state.store.write_test_results_json_file(os.path.join(_state.report_name,
                                                   'katreport.json'))
@@ -687,7 +698,7 @@ class Aqf(object):
         """A internal step in a test section.
 
         Hop is like a step but hop is used for internal setup of the test
-        invironment.
+        environment.
         eg. Aqf.hop("Test that the antenna is stowed when X is set to Y")
 
         :param message: String. Message describe what the hop will test.
@@ -711,11 +722,60 @@ class Aqf(object):
         cls.log_step(message)
 
     @classmethod
+    def stepBold(cls, message):
+        """A step bolded in a test section.
+
+        eg. Aqf.stepBold("Test that the antenna is stowed when X is set to Y")
+
+        :param message: String. Message describe what the step will test.
+
+        """
+        try:
+            assert isinstance(message, list)
+        except AssertionError:
+            message = [message]
+        message = colors.bold('{:10s}'.format(''.join(message)))
+        _state.store.add_step(message)
+        cls.log_step(message)
+
+    @classmethod
+    def stepline(cls, message):
+        """A step underlined in a test section.
+
+        eg. Aqf.stepline("Test that the antenna is stowed when X is set to Y")
+
+        :param message: String. Message describe what the step will test.
+
+        """
+        try:
+            assert isinstance(message, list)
+        except AssertionError:
+            message = [message]
+        message = colors.underline(''.join(message))
+        _state.store.add_step(message)
+        cls.log_step(message)
+
+    @classmethod
+    def addLine(cls, linetype, count=80):
+        """A step in a test section with lines
+
+        eg. Aqf.step("Test that the antenna is stowed when X is set to Y")
+
+        :param linetype: String. linetype eg: * - _
+        :param count: Int. How long do you want your line to be.
+
+        """
+        message = linetype * count
+        _state.store.add_step(message, hop=True)
+        cls.log_step(message)
+        test_logger.info(message)
+
+    @classmethod
     def image(cls, filename, caption='', alt=''):
         _state.store.add_image(filename, caption, alt)
 
     @classmethod
-    def matplotlib_fig(self, filename, caption="", alt="", close_fig=True):
+    def matplotlib_fig(self, filename, caption="", alt="", autoscale=False):
         """Save current matplotlib figure to the report
 
         Parameters
@@ -730,7 +790,7 @@ class Aqf(object):
 
         """
         _state.store.add_matplotlib_fig(filename, caption, alt,
-                                         close_fig=close_fig)
+                                         autoscale)
 
 
     #@classmethod
@@ -842,6 +902,109 @@ class Aqf(object):
             return False
 
     @classmethod
+    def is_not_equals(cls, result, expected, description):
+        """Evaluate: expected result is not equals the obtained result.
+
+        Shortcut for: ::
+
+            if expected != result:
+                Aqf.pass()
+            else:
+                Aqf.failed(message)
+
+        :param result: The obtained value.
+        :param expected: The expected value.
+        :param description: A description of this test.
+
+        """
+
+        # Do not log EVALUATE step
+        # _state.store.add_step_evaluation(description)
+        if expected != result:
+            cls.passed(description)
+        else:
+            cls.failed("Expected '%s' got '%s' - %s" %
+                       (str(expected), str(result), description))
+
+    @classmethod
+    def array_abs_error(cls, result, expected, description, abs_error=0.1):
+        """
+        Compares absolute error in numeric result and logs to Aqf.
+
+        Parameters
+        ----------
+        result: numeric type or array of type
+            Actual result to be checked.
+        expected: Same as result
+            Expected result
+        description: String
+            Message describing the purpose of the comparison.
+        abs_err: float, optional
+            Fail if absolute error is not less than this abs_err for all array
+            elements
+
+        """
+        err = np.abs(np.array(expected) - np.array(result))
+        max_err_ind = np.argmax(err)
+        max_err = err[max_err_ind]
+        if max_err >= abs_error:
+            cls.failed('Absolute error larger than {abs_error}, max error at index {max_err_ind}, '
+                       'error: {max_err} - {description}'.format(**locals()))
+            return False
+        else:
+            cls.passed(description)
+            return True
+
+    @classmethod
+    def array_almost_equal(cls, result, expected, description, **kwargs):
+        """Compares numerical result to an expected value
+
+        Using numpy.testing.assert_almost_equal for the comparison
+
+        Parameters
+        ----------
+        result: numeric type or array of type
+            Actual result to be checked.
+        expected: Same as result
+            Expected result
+        description: String
+            Message describing the purpose of the comparison.
+        **kwargs : keyword arguments
+            Passed on to numpy.testing.assert_almost_equal. You probably want to use the
+            `decimal` kwarg to specify how many digits after the decimal point is compared.
+        """
+        try:
+            np.testing.assert_almost_equal(result, expected, **kwargs)
+        except AssertionError:
+            cls.failed("Expected '%s' got '%s' - %s" %
+                       (str(expected), str(result), description))
+        else:
+            cls.passed(description)
+
+    @classmethod
+    def in_range(cls, result, expected_min, expected_max, description):
+        """Evaluates: obtained result to a minimum and maximum expected value (interval comparison)
+
+        Parameters
+        ----------
+        result: numeric type
+            Actual result to be checked.
+        expected minimum: numeric type
+            Expected minimum result to be checked against actual results
+        expected maximum: numeric type
+            Expected maximum result to be checked against actual results
+        description: String
+            Message describing the purpose of the comparison.
+        """
+        try:
+            assert expected_min <= result <= expected_max
+        except AssertionError:
+            cls.failed("Actual value '%s' is not between '%s' and '%s' -  %s" % (
+                str(result), str(expected_min), str(expected_max), description))
+        else:
+            cls.passed(description)
+
+    @classmethod
     def less(cls, result, expected, description):
         """Evaluate: obtained result less than the expected value.
 
@@ -864,6 +1027,31 @@ class Aqf(object):
         else:
             cls.failed('Result {result} not less than {expected} - {description}'
                        .format(**locals()) )
+            return False
+
+    @classmethod
+    def more(cls, result, expected, description):
+        """Evaluate: obtained result more than the expected value.
+
+        Shortcut for: ::
+
+            if result > expected:
+                Aqf.pass()
+            else:
+                Aqf.failed('Result: {result} not less than {expected}')
+
+        :param result: The obtained value.
+        :param expected: The expected value.
+        :param description: A description of this test.
+
+        """
+
+        if result >= expected:
+            cls.passed(description)
+            return True
+        else:
+            cls.failed('Result {result} not less than {expected} - {description}'
+                       .format(**locals()))
             return False
 
     @classmethod
@@ -1005,7 +1193,7 @@ class Aqf(object):
         os._exit(1)
 
     @classmethod
-    def end(cls, passed=None, message=None):
+    def end(cls, passed=None, message=None, traceback=None):
         """Mark the end of the test.
 
         Every test needs one of these at the end. This method will do the
@@ -1016,11 +1204,15 @@ class Aqf(object):
         :param message: Optional string. Message to add to passed of failed.
 
         """
+        if not traceback:
+            sys.tracebacklimit = 0  # Disabled Traceback report
 
         if passed is True:
             cls.passed(message)
         elif passed is False:
             cls.failed(message)
+            # LVDH - this was added by CBF ???
+            _state.store.test_failed = True
 
         _state.store.test_ack = True
         _state.store._update_step({'_updated': True},
@@ -1028,11 +1220,27 @@ class Aqf(object):
         if _state.store.test_skipped or _state.store.test_tbd or _state.store.test_waived:
             import nose
             raise nose.plugins.skip.SkipTest
+        elif _state.store.test_failed: # LVDH - this was added by CBF ???
+            _state.store.test_failed = False
+            fail_message = ("\n\nNot all test steps passed\n\t"
+                                "Test Name: %s\n\t"
+                                "Failure Message: %s\n"%(_state.store.test_name,
+                                    _state.store.error_msg))
+            fail_message = '\033[91m\033[1m %s \033[0m' %(fail_message)
+            raise TestFailed(fail_message)
         else:
-            assert _state.store.test_passed, \
-                ("Test failed because not all steps passed\n\t\t%s\n\t\t%s" %
+            # LVDH - this was added by CBF ??? the try .. except
+            try:
+                assert _state.store.test_passed, \
+                    ("Test failed because not all steps passed\n\t\t%s\n\t\t%s" %
                     (_state.store.test_name, _state.store.error_msg))
-
+            except AssertionError:
+                fail_message = ("\n\nNot all test steps passed\n\t"
+                                "Test Name: %s\n\t"
+                                "Failure Message: %s\n"%(_state.store.test_name,
+                                    _state.store.error_msg))
+                fail_message = '\033[91m\033[1m %s \033[0m' %(fail_message)
+                raise TestFailed(fail_message)
 
 def wait_for_key(timeout=-1):
     """Block until a key is pressed. Keys like shift and ctrl dont work.
