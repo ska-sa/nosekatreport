@@ -1,19 +1,20 @@
 from __future__ import with_statement
 
 
-import os
-import sys
-import json
-import time
-import string
-import logging
-import datetime
-import traceback
 import colors
-import tempfile
+import datetime
+import json
+import logging
+import numpy as np
+import os
 import shutil
 import stat
+import string
 import subprocess
+import sys
+import tempfile
+import time
+import traceback
 
 log = logging.getLogger('nose.plugins.nosekatreport')
 
@@ -293,8 +294,8 @@ class StoreTestRun(object):
                 # Do not add the traceback for skipped steps
                 stack = traceback.format_stack()
                 action['stack'] = stack
-                Aqf.log_traceback('Last 6 lines of stack:\n' +
-                                  ' '.join(stack[-7:-1]))
+                Aqf.log_traceback('Last few lines of stack:\n' +
+                                  ' '.join(stack[-5:-1]))
             step_success = False
 
         self._update_step({'status': state, 'success': step_success,
@@ -1216,8 +1217,7 @@ class Aqf(object):
             cls.passed(message)
         elif passed is False:
             cls.failed(message)
-            # LVDH - this was added by CBF ???
-            _state.store.test_failed = True
+            _state.store.test_passed = False
 
         _state.store.test_ack = True
         _state.store._update_step({'_updated': True},
@@ -1225,16 +1225,14 @@ class Aqf(object):
         if _state.store.test_skipped or _state.store.test_tbd or _state.store.test_waived:
             import nose
             raise nose.plugins.skip.SkipTest
-        elif _state.store.test_failed: # LVDH - this was added by CBF ???
+        elif not _state.store.test_passed:
             _state.store.test_failed = False
             fail_message = ("\n\nNot all test steps passed\n\t"
                                 "Test Name: %s\n\t"
                                 "Failure Message: %s\n"%(_state.store.test_name,
                                     _state.store.error_msg))
-            fail_message = '\033[91m\033[1m %s \033[0m' %(fail_message)
             raise TestFailed(fail_message)
         else:
-            # LVDH - this was added by CBF ??? the try .. except
             try:
                 fail_msg = ("\nTest failed because not all steps passed\n\t"
                     "Test Name: %s\n\t"
