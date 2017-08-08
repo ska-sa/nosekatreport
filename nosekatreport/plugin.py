@@ -1217,7 +1217,7 @@ class Aqf(object):
         elif passed is False:
             cls.failed(message)
             # LVDH - this was added by CBF ???
-            _state.store.test_failed = True
+            _state.store.test_passed = False
 
         _state.store.test_ack = True
         _state.store._update_step({'_updated': True},
@@ -1225,8 +1225,7 @@ class Aqf(object):
         if _state.store.test_skipped or _state.store.test_tbd or _state.store.test_waived:
             import nose
             raise nose.plugins.skip.SkipTest
-        elif _state.store.test_failed: # LVDH - this was added by CBF ???
-            _state.store.test_failed = False
+        elif not _state.store.test_passed: # LVDH - this was added by CBF ???
             fail_message = ("\n\nNot all test steps passed\n\t"
                                 "Test Name: %s\n\t"
                                 "Failure Message: %s\n"%(_state.store.test_name,
@@ -1234,7 +1233,6 @@ class Aqf(object):
             fail_message = '\033[91m\033[1m %s \033[0m' %(fail_message)
             raise TestFailed(fail_message)
         else:
-            # LVDH - this was added by CBF ??? the try .. except
             try:
                 fail_msg = ("\nTest failed because not all steps passed\n\t"
                     "Test Name: %s\n\t"
