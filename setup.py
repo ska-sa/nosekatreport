@@ -12,7 +12,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name='nose-kat-report',
+    name='nosekatreport',
     version='0.2',
     description='Nose plugin for writing an annoted test report',
     long_description=open('README.rst').read(),
