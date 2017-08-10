@@ -7,7 +7,7 @@
 # WRITTEN PERMISSION OF SKA SA.                                               #
 ###############################################################################
 __all__ = ['satisfies_requirement', 'satisfies_vr',
-           'site_only', 'site_acceptance',
+           'site_only', 'site_acceptance', 'generic_test',
            'system', 'aqf_requirements', 'aqf_vr', 'intrusive', 'slow',
            'instrument_bc8n856M4k', 'instrument_bc16n856M4k', 'instrument_bc32n856M4k',
            'instrument_bc8n856M32k', 'instrument_bc16n856M32k', 'instrument_bc32n856M32k']
