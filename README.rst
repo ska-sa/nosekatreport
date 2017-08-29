@@ -1,8 +1,10 @@
 ================
-nose-kat-report
+nosekatreport
 ================
 
-nose-kat-report is a nose_ plugin for writing an annotated test report
+.. image:: https://travis-ci.org/ska-sa/nosekatreport.svg?branch=master
+
+nosekatreport is a nose_ plugin for writing an annotated test report
 The test report generation is distributed throughout the tests through
 calls to nose_kat_report
 
