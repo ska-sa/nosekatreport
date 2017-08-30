@@ -774,7 +774,6 @@ class Aqf(object):
         message = linetype * count
         _state.store.add_step(message, hop=True)
         cls.log_step(message)
-        test_logger.info(message)
 
     @classmethod
     def image(cls, filename, caption='', alt=''):
