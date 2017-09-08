@@ -160,7 +160,7 @@ class StoreTestRun(object):
         self._update_test(test_name, kwargs)
         Aqf.log_line("="*80)  # Separation line
 
-    def add_step(self, message=None, hop=False):
+    def add_step(self, message=None, hop=False, procedure=False):
         """Add a step to a test."""
         if self.step_counter > 0:
             # Record the end of the previous step
@@ -168,10 +168,18 @@ class StoreTestRun(object):
                               {'type': 'CONTROL', 'msg': 'end'})
         self.step_counter += 1
         # Record the start of the next step
-        step_data = {'status': PASS, 'success': True,
-                     'description': message,
-                     'step_start': str(datetime.datetime.utcnow()),
-                     'progress': [], 'evaluation': [], }
+        if procedure:
+            step_data = {'status': PASS,
+                         'success': True,
+                         'procedure': message,
+                         'step_start': str(datetime.datetime.utcnow()),
+                         'progress': [], 'evaluation': [], }
+        else:
+            step_data = {'status': PASS,
+                         'success': True,
+                         'description': message,
+                         'step_start': str(datetime.datetime.utcnow()),
+                         'progress': [], 'evaluation': [], }
         step_data['hop'] = hop
         step_action = {'type': 'control', 'msg': 'start'}
         self._update_step(step_data, step_action)
@@ -714,6 +722,21 @@ class Aqf(object):
             message = "Doing Setup"
         _state.store.add_step(message, hop=True)
         cls.log_hop(message)
+
+    @classmethod
+    def procedure(cls, message=None):
+        """A formal specification of test cases to be applied to one or more target program modules
+
+        eg. Aqf.procedure("1. Turn the CBF on and wait for it to boot, if required.")
+
+        :param message: String. Message describes the test procedure.
+
+        """
+        if message is None:
+            message = "Doing Setup"
+        _state.store.add_step(message, procedure=True)
+        cls.log_procedure(message)
+
 
     @classmethod
     def step(cls, message):
