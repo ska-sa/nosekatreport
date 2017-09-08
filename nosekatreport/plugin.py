@@ -622,23 +622,25 @@ class AqfLog(type):
         """
         if _state.config.get('jenkins'):
             return "{:10s}".format(severity)
-        sc = {'INFO': colors.blue,
+        sc = {
+              'BUILD': colors.faint,
+              'CHECKBOX': colors.magenta,
               'ERROR': colors.red,
-              'TRACEBACK': colors.red,
               'EXIT': colors.red,
+              'FAILED': colors.yellow,
+              'HOP': colors.faint,
+              'INFO': colors.blue,
+              'KEYWAIT': colors.magenta,
               'PASSED': colors.cyan,
-              'WAIT': colors.faint,
-              'TEST': colors.negative,  # colors.blink
+              'PROCEDURE': colors.blue,
+              'PROGRESS': colors.faint,
+              'SKIPPED': colors.blue,
               'STEP': colors.bold,
               'TBD': colors.blue,
-              'SKIPPED': colors.blue,
-              'CHECKBOX': colors.magenta,
-              'KEYWAIT': colors.magenta,
-              'BUILD': colors.faint,
-              'FAILED': colors.yellow,
-              'PROGRESS': colors.faint,
-              'HOP': colors.faint,
-              'WAIVED': colors.underline
+              'TEST': colors.negative,
+              'TRACEBACK': colors.red,
+              'WAIT': colors.faint,
+              'WAIVED': colors.underline,
               }
         call_col = sc.get(severity, None)
         if call_col:

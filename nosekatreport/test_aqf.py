@@ -29,6 +29,7 @@ class TestAqf(unittest.TestCase):
             'CBF-REQ-0047', 'TP.C.1.19')
     def test_aqf_decorators(self):
         Aqf.hop()
+        Aqf.procedure('This is a descriptive testing procedure...')
         Aqf.step("Setup")
         #Aqf.sensor('sim.sensors.asc_wind_speed').get()
         # Set something on the simulator.
