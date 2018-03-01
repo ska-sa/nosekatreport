@@ -7,8 +7,8 @@
 # WRITTEN PERMISSION OF SKA SA.                                               #
 ###############################################################################
 __all__ = ['satisfies_requirement', 'satisfies_vr',
-           'site_only', 'site_acceptance', 'generic_test',
-           'system', 'aqf_requirements', 'aqf_vr', 'intrusive', 'slow',
+           'site_only', 'site_acceptance', 'generic_test', 'manual_test',
+           'system', 'aqf_requirements', 'aqf_vr', 'intrusive', 'slow', 'untested',
            'instrument_bc8n856M4k', 'instrument_bc16n856M4k', 'instrument_bc32n856M4k',
            'instrument_bc8n856M32k', 'instrument_bc16n856M32k', 'instrument_bc32n856M32k']
 
@@ -165,6 +165,50 @@ def generic_test(*args):
 
     """
     return grand_decorator('generic_test', *args)
+
+def manual_test(*args):
+    """Tag the test method or object as manual_test.
+
+    This manual test will only run when requested
+
+    Usage example on test method: ::
+
+        @manual_test()
+        def test_manual_test_01(self):
+
+    Usage example on test class: ::
+
+        @manual_test()
+        class TestGeneric(unittest.TestCase):
+
+    This decorator can be assigned by @manual_test or @manual_test()
+
+    :return: Function.
+
+    """
+    return grand_decorator('manual_test', *args)
+
+def untested(*args):
+    """Tag the test method or object as untested /not tested.
+
+    This test will not be run ie will not be put in the QTR rather the QTP
+
+    Usage example on test method: ::
+
+        @untested()
+        def test_manual_test_01(self):
+
+    Usage example on test class: ::
+
+        @untested()
+        class TestGeneric(unittest.TestCase):
+
+    This decorator can be assigned by @untested or @untested()
+
+    :return: Function.
+
+    """
+    return grand_decorator('untested', *args)
 
 def instrument_bc8n856M4k(*args):
     """Tag the test method or object as instrument_bc8n856M4k.

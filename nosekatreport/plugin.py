@@ -32,6 +32,7 @@ __all__ = ['KatReportPlugin', 'Aqf', 'StoreTestRun']
 
 
 UNKNOWN = 'unknown'
+NOT_TESTED = 'not_tested'
 WAIVED = 'waived'
 PASS = 'passed'
 ERROR = 'error'
@@ -108,6 +109,8 @@ class StoreTestRun(object):
         self.test_skipped = False
         self.test_tbd = False
         self.test_waived = False
+        self.test_not_tested = False
+        self.test_manual = False
         self.test_ack = False
         self.error_msg = ''
 
@@ -129,6 +132,7 @@ class StoreTestRun(object):
         self.test_passed = True  # Be optimistic.
         self.test_skipped = False
         self.test_tbd = False
+        self.test_not_tested = False
         self.test_waived = False
         self.test_ack = False
         self.error_msg = ''
@@ -173,15 +177,22 @@ class StoreTestRun(object):
                          'success': True,
                          'procedure': message,
                          'step_start': str(datetime.datetime.utcnow()),
-                         'progress': [], 'evaluation': [], }
+                         'progress': [], 'evaluation': [],
+                         'dry_run': eval(os.getenv('DRY_RUN', 'False')),
+                        }
         else:
             step_data = {'status': PASS,
                          'success': True,
                          'description': message,
                          'step_start': str(datetime.datetime.utcnow()),
-                         'progress': [], 'evaluation': [], }
+                         'progress': [],
+                         'evaluation': [],
+                         }
         step_data['hop'] = hop
-        step_action = {'type': 'control', 'msg': 'start'}
+        step_action = {
+                        'type': 'control',
+                        'msg': 'start',
+                      }
         self._update_step(step_data, step_action)
 
     def add_step_evaluation(self, description):
@@ -292,8 +303,11 @@ class StoreTestRun(object):
         """Set the state of the step."""
         log_func = getattr(Aqf, "log_%s" % state)
         log_func(message)
-        action = {'type': state, 'msg': message}
-        if state in [PASS, WAIVED, TBD]:
+        action = {
+                    'type': state,
+                    'msg': message
+                 }
+        if state in [PASS, WAIVED, TBD, NOT_TESTED]:
             # Record step as a success
             step_success = True
         else:  # UNKNOWN, ERROR, FAIL, SKIPPED
@@ -306,8 +320,11 @@ class StoreTestRun(object):
                                   ' '.join(stack[-5:-1]))
             step_success = False
 
-        self._update_step({'status': state, 'success': step_success,
-                           'error_msg': message}, action)
+        self._update_step({
+                            'status': state,
+                            'success': step_success,
+                            'error_msg': message
+                          } , action)
 
     def set_test_state(self, test_name, state, err_obj=None):
         if state in [PASS, WAIVED]:
@@ -378,6 +395,7 @@ class StoreTestRun(object):
         status = [UNKNOWN,   # Dont know what happened
                   PASS,      # Test Passed
                   WAIVED,    # The test was waived.
+                  NOT_TESTED,    # The test was not tested.
                   SKIPPED,      # Skip this test
                   TBD,       # Test is to-be-done
                   FAIL,      # Test Failed
@@ -467,6 +485,7 @@ class StoreTestRun(object):
             self.test_skipped = data['status'] == SKIPPED
             self.test_tbd = data['status'] == TBD
             self.test_waived = data['status'] == WAIVED
+            self.test_not_tested = data['status'] == NOT_TESTED
             if (self.test_run_data[test_name].get('status') !=
                     data.get('status')):
                 # status degraded. Store the message
@@ -637,6 +656,7 @@ class AqfLog(type):
               'SKIPPED': colors.blue,
               'STEP': colors.bold,
               'TBD': colors.blue,
+              'NOT_TESTED': colors.blue,
               'TEST': colors.negative,
               'TRACEBACK': colors.red,
               'WAIT': colors.faint,
@@ -739,6 +759,20 @@ class Aqf(object):
         _state.store.add_step(message, procedure=True)
         cls.log_procedure(message)
 
+    @classmethod
+    def note(cls, message=None):
+        """A note in a test section.
+
+        eg. Aqf.note("Test that the antenna is stowed when X is set to Y")
+
+        :param message: String. Pay particular attention to Message
+
+        """
+        if message is None:
+            message = "Doing Setup"
+        _state.store.add_step(message)
+        cls.log_note(message)
+
 
     @classmethod
     def step(cls, message):
@@ -761,13 +795,11 @@ class Aqf(object):
         :param message: String. Message describe what the step will test.
 
         """
-        try:
-            assert isinstance(message, list)
-        except AssertionError:
-            message = [message]
-        message = colors.bold('{:10s}'.format(''.join(message)))
-        _state.store.add_step(message)
-        cls.log_step(message)
+        if message is None:
+            message = "Doing Setup"
+        _message = '.-.%s.-.' % message
+        _state.store.add_step(_message, hop=True)
+        cls.log_hop(_message)
 
     @classmethod
     def stepline(cls, message):
@@ -903,6 +935,18 @@ class Aqf(object):
         """
         #_state.store.add_step_waived(message)
         _state.store.set_step_state(WAIVED, message)
+
+    @classmethod
+    def not_tested(cls, message):
+        """Test will not be tested.
+
+        This test will not be tested for a reason.
+        eg. Aqf.not_tested("This requirement will not be tested in this release.")
+
+        :param message: String. Reason for not testing.
+
+        """
+        _state.store.set_step_state(NOT_TESTED, message)
 
     @classmethod
     def equals(cls, result, expected, description):
