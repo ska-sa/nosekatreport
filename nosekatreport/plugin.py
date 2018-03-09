@@ -650,6 +650,8 @@ class AqfLog(type):
               'HOP': colors.faint,
               'INFO': colors.blue,
               'KEYWAIT': colors.magenta,
+              'NOT_TESTED': colors.blue,
+              'NOTE': colors.yellow,
               'PASSED': colors.cyan,
               'PROCEDURE': colors.blue,
               'PROGRESS': colors.faint,
@@ -758,6 +760,20 @@ class Aqf(object):
             message = "Doing Setup"
         _state.store.add_step(message, procedure=True)
         cls.log_procedure(message)
+
+    @classmethod
+    def note(cls, message=None):
+        """A note in a test section.
+
+        eg. Aqf.note("Test that the antenna is stowed when X is set to Y")
+
+        :param message: String. Pay particular attention to Message
+
+        """
+        if message is None:
+            message = "Doing Setup"
+        _state.store.add_step(message)
+        cls.log_note(message)
 
 
     @classmethod
