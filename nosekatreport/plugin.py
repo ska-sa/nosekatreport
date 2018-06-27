@@ -32,6 +32,7 @@ __all__ = ['KatReportPlugin', 'Aqf', 'StoreTestRun']
 
 
 UNKNOWN = 'unknown'
+NOT_TESTED = 'not_tested'
 WAIVED = 'waived'
 PASS = 'passed'
 ERROR = 'error'
@@ -108,6 +109,8 @@ class StoreTestRun(object):
         self.test_skipped = False
         self.test_tbd = False
         self.test_waived = False
+        self.test_not_tested = False
+        self.test_manual = False
         self.test_ack = False
         self.error_msg = ''
 
@@ -129,6 +132,7 @@ class StoreTestRun(object):
         self.test_passed = True  # Be optimistic.
         self.test_skipped = False
         self.test_tbd = False
+        self.test_not_tested = False
         self.test_waived = False
         self.test_ack = False
         self.error_msg = ''
@@ -160,7 +164,7 @@ class StoreTestRun(object):
         self._update_test(test_name, kwargs)
         Aqf.log_line("="*80)  # Separation line
 
-    def add_step(self, message=None, hop=False):
+    def add_step(self, message=None, hop=False, procedure=False):
         """Add a step to a test."""
         if self.step_counter > 0:
             # Record the end of the previous step
@@ -168,12 +172,27 @@ class StoreTestRun(object):
                               {'type': 'CONTROL', 'msg': 'end'})
         self.step_counter += 1
         # Record the start of the next step
-        step_data = {'status': PASS, 'success': True,
-                     'description': message,
-                     'step_start': str(datetime.datetime.utcnow()),
-                     'progress': [], 'evaluation': [], }
+        if procedure:
+            step_data = {'status': PASS,
+                         'success': True,
+                         'procedure': message,
+                         'step_start': str(datetime.datetime.utcnow()),
+                         'progress': [], 'evaluation': [],
+                         'dry_run': eval(os.getenv('DRY_RUN', 'False')),
+                        }
+        else:
+            step_data = {'status': PASS,
+                         'success': True,
+                         'description': message,
+                         'step_start': str(datetime.datetime.utcnow()),
+                         'progress': [],
+                         'evaluation': [],
+                         }
         step_data['hop'] = hop
-        step_action = {'type': 'control', 'msg': 'start'}
+        step_action = {
+                        'type': 'control',
+                        'msg': 'start',
+                      }
         self._update_step(step_data, step_action)
 
     def add_step_evaluation(self, description):
@@ -284,8 +303,11 @@ class StoreTestRun(object):
         """Set the state of the step."""
         log_func = getattr(Aqf, "log_%s" % state)
         log_func(message)
-        action = {'type': state, 'msg': message}
-        if state in [PASS, WAIVED, TBD]:
+        action = {
+                    'type': state,
+                    'msg': message
+                 }
+        if state in [PASS, WAIVED, TBD, NOT_TESTED]:
             # Record step as a success
             step_success = True
         else:  # UNKNOWN, ERROR, FAIL, SKIPPED
@@ -298,8 +320,11 @@ class StoreTestRun(object):
                                   ' '.join(stack[-5:-1]))
             step_success = False
 
-        self._update_step({'status': state, 'success': step_success,
-                           'error_msg': message}, action)
+        self._update_step({
+                            'status': state,
+                            'success': step_success,
+                            'error_msg': message
+                          } , action)
 
     def set_test_state(self, test_name, state, err_obj=None):
         if state in [PASS, WAIVED]:
@@ -370,6 +395,7 @@ class StoreTestRun(object):
         status = [UNKNOWN,   # Dont know what happened
                   PASS,      # Test Passed
                   WAIVED,    # The test was waived.
+                  NOT_TESTED,    # The test was not tested.
                   SKIPPED,      # Skip this test
                   TBD,       # Test is to-be-done
                   FAIL,      # Test Failed
@@ -459,6 +485,7 @@ class StoreTestRun(object):
             self.test_skipped = data['status'] == SKIPPED
             self.test_tbd = data['status'] == TBD
             self.test_waived = data['status'] == WAIVED
+            self.test_not_tested = data['status'] == NOT_TESTED
             if (self.test_run_data[test_name].get('status') !=
                     data.get('status')):
                 # status degraded. Store the message
@@ -614,23 +641,28 @@ class AqfLog(type):
         """
         if _state.config.get('jenkins'):
             return "{:10s}".format(severity)
-        sc = {'INFO': colors.blue,
+        sc = {
+              'BUILD': colors.faint,
+              'CHECKBOX': colors.magenta,
               'ERROR': colors.red,
-              'TRACEBACK': colors.red,
               'EXIT': colors.red,
+              'FAILED': colors.yellow,
+              'HOP': colors.faint,
+              'INFO': colors.blue,
+              'KEYWAIT': colors.magenta,
+              'NOT_TESTED': colors.blue,
+              'NOTE': colors.yellow,
               'PASSED': colors.cyan,
-              'WAIT': colors.faint,
-              'TEST': colors.negative,  # colors.blink
+              'PROCEDURE': colors.blue,
+              'PROGRESS': colors.faint,
+              'SKIPPED': colors.blue,
               'STEP': colors.bold,
               'TBD': colors.blue,
-              'SKIPPED': colors.blue,
-              'CHECKBOX': colors.magenta,
-              'KEYWAIT': colors.magenta,
-              'BUILD': colors.faint,
-              'FAILED': colors.yellow,
-              'PROGRESS': colors.faint,
-              'HOP': colors.faint,
-              'WAIVED': colors.underline
+              'NOT_TESTED': colors.blue,
+              'TEST': colors.negative,
+              'TRACEBACK': colors.red,
+              'WAIT': colors.faint,
+              'WAIVED': colors.underline,
               }
         call_col = sc.get(severity, None)
         if call_col:
@@ -716,6 +748,35 @@ class Aqf(object):
         cls.log_hop(message)
 
     @classmethod
+    def procedure(cls, message=None):
+        """A formal specification of test cases to be applied to one or more target program modules
+
+        eg. Aqf.procedure("1. Turn the CBF on and wait for it to boot, if required.")
+
+        :param message: String. Message describes the test procedure.
+
+        """
+        if message is None:
+            message = "Doing Setup"
+        _state.store.add_step(message, procedure=True)
+        cls.log_procedure(message)
+
+    @classmethod
+    def note(cls, message=None):
+        """A note in a test section.
+
+        eg. Aqf.note("Test that the antenna is stowed when X is set to Y")
+
+        :param message: String. Pay particular attention to Message
+
+        """
+        if message is None:
+            message = "Doing Setup"
+        _state.store.add_step(message)
+        cls.log_note(message)
+
+
+    @classmethod
     def step(cls, message):
         """A step in a test section.
 
@@ -736,13 +797,11 @@ class Aqf(object):
         :param message: String. Message describe what the step will test.
 
         """
-        try:
-            assert isinstance(message, list)
-        except AssertionError:
-            message = [message]
-        message = colors.bold('{:10s}'.format(''.join(message)))
-        _state.store.add_step(message)
-        cls.log_step(message)
+        if message is None:
+            message = "Doing Setup"
+        _message = '.-.%s.-.' % message
+        _state.store.add_step(_message, hop=True)
+        cls.log_hop(_message)
 
     @classmethod
     def stepline(cls, message):
@@ -878,6 +937,18 @@ class Aqf(object):
         """
         #_state.store.add_step_waived(message)
         _state.store.set_step_state(WAIVED, message)
+
+    @classmethod
+    def not_tested(cls, message):
+        """Test will not be tested.
+
+        This test will not be tested for a reason.
+        eg. Aqf.not_tested("This requirement will not be tested in this release.")
+
+        :param message: String. Reason for not testing.
+
+        """
+        _state.store.set_step_state(NOT_TESTED, message)
 
     @classmethod
     def equals(cls, result, expected, description):
