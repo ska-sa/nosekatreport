@@ -6,6 +6,9 @@
 # THIS SOFTWARE MAY NOT BE COPIED OR DISTRIBUTED IN ANY FORM WITHOUT THE      #
 # WRITTEN PERMISSION OF SKA SA.                                               #
 ###############################################################################
+from functools import wraps
+
+
 __all__ = ['satisfies_requirement', 'satisfies_vr',
            'site_only', 'site_acceptance', 'generic_test', 'manual_test',
            'system', 'aqf_requirements', 'aqf_vr', 'intrusive', 'slow', 'untested',
@@ -13,7 +16,6 @@ __all__ = ['satisfies_requirement', 'satisfies_vr',
 
 
 def grand_decorator(name, gd_func, *gd_args):
-
     def decorator(func, *args, **kwargs):
         # end in here if decorator was assigned like @deco()
         setattr(func, "aqf_%s" % name, 1)
@@ -29,6 +31,7 @@ def grand_decorator(name, gd_func, *gd_args):
 
 def satisfies_requirement(requirement):
     """Single requirement"""
+    @wraps(func)
     def decorator(func):
         try:
             func.katreport_requirements.append(requirement)
@@ -39,6 +42,7 @@ def satisfies_requirement(requirement):
 
 def satisfies_vr(ver_requirement):
     """Single verification requirement"""
+    @wraps(func)
     def decorator(func):
         try:
             func.katreport_ver_requirements.append(ver_requirement)

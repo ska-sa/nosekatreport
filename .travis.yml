@@ -5,3 +5,10 @@ install:
   - pip install .
 script:
   - nosetests -sv nosekatreport/test_aqf.py
+notifications:
+  email:
+    recipients:
+      - cbf@ska.ac.za
+      - cam@ska.ac.za
+    on_success: never
+    on_failure: always
