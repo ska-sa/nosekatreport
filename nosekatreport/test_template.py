@@ -7,11 +7,13 @@
 # WRITTEN PERMISSION OF SKA SA.                                               #
 ###############################################################################
 import sys
-import unittest2 as unittest
 
-from tests import intrusive, fixtures, wait_with_strategy
-from nosekatreport import report_subpass, report_subfail, satisfies_requirement,\
-     report_progress
+from nosekatreport import (report_progress, report_subfail, report_subpass,
+                           satisfies_requirement)
+
+import unittest2 as unittest
+from tests import fixtures, intrusive, wait_with_strategy
+
 
 class TestTemplate(unittest.TestCase):
     """This is a template class to start building kat system tests with."""
@@ -65,5 +67,3 @@ class TestTemplate(unittest.TestCase):
     def test_skip_if_not_2_6(self):
         # testing some things here
         report_progress("Version is >= 2.6")
-
-

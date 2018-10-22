@@ -1,11 +1,8 @@
 from __future__ import with_statement
 
-
-import colors
 import datetime
 import json
 import logging
-import numpy as np
 import os
 import shutil
 import stat
@@ -15,6 +12,10 @@ import sys
 import tempfile
 import time
 import traceback
+
+import colors
+import numpy as np
+from nose.plugins import Plugin
 
 log = logging.getLogger('nose.plugins.nosekatreport')
 
@@ -26,7 +27,6 @@ except ImportError:
     log.info('Matplotlib not found, will not be able to add matplotlib figures')
 
 
-from nose.plugins import Plugin
 __all__ = ['KatReportPlugin', 'Aqf', 'StoreTestRun']
 
 

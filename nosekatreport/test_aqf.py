@@ -10,8 +10,8 @@
 
 import unittest
 
-from nosekatreport import (Aqf, aqf_vr, system, slow, intrusive,
-                           site_only, site_acceptance)
+from nosekatreport import (Aqf, aqf_vr, intrusive, site_acceptance, site_only,
+                           slow, system)
 
 
 @system('all')

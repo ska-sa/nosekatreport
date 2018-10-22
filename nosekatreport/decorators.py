@@ -8,11 +8,10 @@
 ###############################################################################
 from functools import wraps
 
-
 __all__ = ['satisfies_requirement', 'satisfies_vr',
            'site_only', 'site_acceptance', 'generic_test', 'manual_test',
            'system', 'aqf_requirements', 'aqf_vr', 'intrusive', 'slow', 'untested',
-           'instrument_4k', 'instrument_32k']
+           'instrument_1k', 'instrument_4k', 'instrument_32k']
 
 
 def grand_decorator(name, gd_func, *gd_args):
@@ -212,6 +211,28 @@ def untested(*args):
 
     """
     return grand_decorator('untested', *args)
+
+def instrument_1k(*args):
+    """Tag the test method or object as instrument_1k.
+
+    This test will only run tests decorated with/including 1k mode
+
+    Usage example on test method: ::
+
+        @instrument_1k()
+        def test_generic_test_01(self):
+
+    Usage example on test class: ::
+
+        @instrument_1k()
+        class TestGeneric(unittest.TestCase):
+
+    This decorator can be assigned by @instrument_1k or @instrument_1k()
+
+    :return: Function.
+
+    """
+    return grand_decorator('instrument_4k', *args)
 
 def instrument_4k(*args):
     """Tag the test method or object as instrument_4k.

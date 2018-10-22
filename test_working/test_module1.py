@@ -7,8 +7,9 @@
 # WRITTEN PERMISSION OF SKA SA.                                               #
 ###############################################################################
 """A battery of tests for Shiney Module 1"""
-import unittest2 as unittest
 from nosekatreport import report_subpass, satisfies_requirement
+
+import unittest2 as unittest
 
 
 class TestResiliency(unittest.TestCase):
