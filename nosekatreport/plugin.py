@@ -316,8 +316,9 @@ class StoreTestRun(object):
                 # Do not add the traceback for skipped steps
                 stack = traceback.format_stack()
                 action['stack'] = stack
-                Aqf.log_traceback('Last few lines of stack:\n' +
-                                  ' '.join(stack[-5:-1]))
+                if stack:
+                    Aqf.log_traceback(
+                        'Last few lines of stack:\n' + ' '.join(stack[-5:-1]))
             step_success = False
 
         self._update_step({
