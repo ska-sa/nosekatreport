@@ -20,7 +20,7 @@ setup(
     author_email='nmarais@ska.ac.za',
     license='GPL',
     packages=find_packages(exclude=['ez_setup']),
-    install_requires=['Nose>=0.11.0', 'traceback2', 'ansicolors', 'numpy'],
+    install_requires=['Nose>=0.11.0', 'traceback2', 'ansicolors', 'numpy<1.17'],
     url='',
     include_package_data=True,
     entry_points="""
