@@ -7,7 +7,6 @@
 # WRITTEN PERMISSION OF SKA SA.                                               #
 ###############################################################################
 import sys
-
 from setuptools import setup, find_packages
 
 
