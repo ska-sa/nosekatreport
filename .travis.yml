@@ -1,7 +1,15 @@
+sudo: false
 language: python
 python:
-  - 2.7
+    -   "2.7"
+    -   "3.6"
+
+env:
+    KATPACKAGE=${PWD##*/}
+    test_flags="--with-xunit --with-xcoverage --cover-package=${KATPACKAGE} --cover-inclusive"
+
 install:
-  - pip install .
+    -   pip install tox-travis
+
 script:
-  - nosetests -sv nosekatreport/test_aqf.py
+    -   tox
