@@ -1,5 +1,6 @@
+# Copyright 2013 SKA South Africa (http://ska.ac.za/)
+# BSD license - see LICENSE for details
 from __future__ import with_statement
-
 
 import colors
 import datetime
