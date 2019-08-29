@@ -74,7 +74,7 @@ class TestAqf(unittest.TestCase):
     @aqf_vr('VR.CM.EXAMPLE.17')
     def test_aqf_decorators_3(self):
         Aqf.step("Setup")
-
+        # import IPython; globals().update(locals()); IPython.embed(header='Python Debugger')
         s = Aqf.sensor('sim.sensors.asc_wind_speed').get()
         Aqf.progress("The2 sensor was %s" % str(s))
         Aqf.sensor('sim.sensors.asc_wind_speed').set(10)
@@ -91,5 +91,5 @@ class TestAqf(unittest.TestCase):
         Aqf.end()
 
 
-if __name__ == '__main__':
-    unittest.main()
+# if __name__ == '__main__':
+#     unittest.main()

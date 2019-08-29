@@ -11,7 +11,6 @@ from setuptools import setup, find_packages
 
 setup(
     name="nosekatreport",
-    version="0.3",
     description="Nose plugin for writing an annotated test report.",
     long_description=open("README.rst").read(),
     author="CAM team",
