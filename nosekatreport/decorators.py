@@ -1,17 +1,9 @@
-###############################################################################
-# SKA South Africa (http://ska.ac.za/)                                        #
-# Author: cam@ska.ac.za                                                       #
-# Copyright @ 2013 SKA SA. All rights reserved.                               #
-#                                                                             #
-# THIS SOFTWARE MAY NOT BE COPIED OR DISTRIBUTED IN ANY FORM WITHOUT THE      #
-# WRITTEN PERMISSION OF SKA SA.                                               #
-###############################################################################
+# Copyright (c) 2017 National Research Foundation (South African Radio Astronomy Observatory)
+# BSD license - see LICENSE for details
 __all__ = ['satisfies_requirement', 'satisfies_vr',
            'site_only', 'site_acceptance', 'generic_test',
            'system', 'aqf_requirements', 'aqf_vr', 'intrusive', 'slow',
-           'instrument_bc8n856M4k', 'instrument_bc16n856M4k', 'instrument_bc32n856M4k',
-           'instrument_bc8n856M32k', 'instrument_bc16n856M32k', 'instrument_bc32n856M32k']
-
+           ]
 
 def grand_decorator(name, gd_func, *gd_args):
 
@@ -26,7 +18,6 @@ def grand_decorator(name, gd_func, *gd_args):
         return gd_func
     else:
         return decorator
-
 
 def satisfies_requirement(requirement):
     """Single requirement"""
@@ -48,7 +39,6 @@ def satisfies_vr(ver_requirement):
         return func
     return decorator
 
-
 def slow(*args):
     """Tag the test method or object as a slow tests.
 
@@ -68,7 +58,6 @@ def slow(*args):
 
     """
     return grand_decorator('slow', *args)
-
 
 def intrusive(*args):
     """Tag the test method or object as intrusive.
@@ -93,11 +82,6 @@ def intrusive(*args):
 
     """
     return grand_decorator('intrusive', *args)
-    #def decorator(func):
-    #    setattr(func, 'aqf_intrusive', 1)
-    #    setattr(func, "aqf_system_karoo", 0)
-    #    return func
-    #return decorator
 
 def site_acceptance(*args):
     """Tag the test method or object as part of the site acceptance test.
@@ -120,7 +104,6 @@ def site_acceptance(*args):
 
     """
     return grand_decorator('site_acceptance', *args)
-
 
 def site_only(*args):
     """Tag the test method or object as site only.
@@ -166,137 +149,6 @@ def generic_test(*args):
     """
     return grand_decorator('generic_test', *args)
 
-def instrument_bc8n856M4k(*args):
-    """Tag the test method or object as instrument_bc8n856M4k.
-
-    This test will only run tests decorated with/including bc8n856M4k mode
-
-    Usage example on test method: ::
-
-        @instrument_bc8n856M4k()
-        def test_generic_test_01(self):
-
-    Usage example on test class: ::
-
-        @instrument_bc8n856M4k()
-        class TestGeneric(unittest.TestCase):
-
-    This decorator can be assigned by @instrument_bc8n856M4k or @instrument_bc8n856M4k()
-
-    :return: Function.
-
-    """
-    return grand_decorator('instrument_bc8n856M4k', *args)
-
-def instrument_bc16n856M4k(*args):
-    """Tag the test method or object as instrument_bc16n856M4k.
-
-    This test will only run tests decorated with/including bc16n856M4k mode
-
-    Usage example on test method: ::
-
-        @instrument_bc16n856M4k()
-        def test_generic_test_01(self):
-
-    Usage example on test class: ::
-
-        @instrument_bc16n856M4k()
-        class TestGeneric(unittest.TestCase):
-
-    This decorator can be assigned by @instrument_bc16n856M4k or @instrument_bc16n856M4k()
-
-    :return: Function.
-
-    """
-    return grand_decorator('instrument_bc16n856M4k', *args)
-
-def instrument_bc32n856M4k(*args):
-    """Tag the test method or object as instrument_bc32n856M4k.
-
-    This test will only run tests decorated with/including bc32n856M4k mode
-
-    Usage example on test method: ::
-
-        @instrument_bc32n856M4k()
-        def test_generic_test_01(self):
-
-    Usage example on test class: ::
-
-        @instrument_bc32n856M4k()
-        class TestGeneric(unittest.TestCase):32
-    This decorator can be assigned by @instrument_bc8n856M4k or @instrument_bc8n856M4k()
-
-    :return: Function.
-
-    """
-    return grand_decorator('instrument_bc32n856M4k', *args)
-
-def instrument_bc8n856M32k(*args):
-    """Tag the test method or object as instrument_bc8n856M32k.
-
-    This test will only run tests decorated with/including bc8n856M32k mode
-
-    Usage example on test method: ::
-
-        @instrument_bc8n856M32k()
-        def test_generic_test_01(self):
-
-    Usage example on test class: ::
-
-        @instrument_bc8n856M32k()
-        class TestGeneric(unittest.TestCase):
-
-    This decorator can be assigned by @instrument_bc8n856M32k or @instrument_bc8n856M32k()
-
-    :return: Function.
-
-    """
-    return grand_decorator('instrument_bc8n856M32k', *args)
-
-def instrument_bc16n856M32k(*args):
-    """Tag the test method or object as instrument_bc16n856M32k.
-
-    This test will only run tests decorated with/including bc16n856M32k mode
-
-    Usage example on test method: ::
-
-        @instrument_bc16n856M32k()
-        def test_generic_test_01(self):
-
-    Usage example on test class: ::
-
-        @instrument_bc16n856M32k()
-        class TestGeneric(unittest.TestCase):
-
-    This decorator can be assigned by @instrument_bc16n856M32k or @instrument_bc16n856M32k()
-
-    :return: Function.
-
-    """
-    return grand_decorator('instrument_bc16n856M32k', *args)
-
-def instrument_bc32n856M32k(*args):
-    """Tag the test method or object as instrument_bc32n856M32k.
-
-    This test will only run tests decorated with/including bc32n856M32k mode
-
-    Usage example on test method: ::
-
-        @instrument_bc32n856M32k()
-        def test_generic_test_01(self):
-
-    Usage example on test class: ::
-
-        @instrument_bc32n856M32k()
-        class TestGeneric(unittest.TestCase):
-    This decorator can be assigned by @instrument_bc8n856M32k or @instrument_bc8n856M32k()
-
-    :return: Function.
-
-    """
-    return grand_decorator('instrument_bc32n856M32k', *args)
-
-
 def system(*systems, **system_kwargs):
     """Decorator to indicate to which systems this test applies.
 
@@ -333,7 +185,6 @@ def system(*systems, **system_kwargs):
         return func
     return decorator
 
-
 def aqf_requirements(*requirements):
     """Decorator to add requirements to a test method.
 
@@ -345,7 +196,6 @@ def aqf_requirements(*requirements):
 
     """
     return aqf_vr(*requirements)
-
 
 def aqf_vr(*requirements):
     """Decorator to add verification requirements to a test method.
@@ -376,4 +226,3 @@ def aqf_vr(*requirements):
             func.katreport_requirements = list(set(requirements))
         return func
     return decorator
-#

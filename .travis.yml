@@ -4,4 +4,4 @@ python:
 install:
   - pip install .
 script:
-  - nosetests -sv nosekatreport/test_aqf.py
+  - nosetests -sv

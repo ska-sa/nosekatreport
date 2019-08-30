@@ -1,24 +1,15 @@
-###############################################################################
-# SKA South Africa (http://ska.ac.za/)                                        #
-# Author: cam@ska.ac.za                                                       #
-# Copyright @ 2013 SKA SA. All rights reserved.                               #
-#                                                                             #
-# THIS SOFTWARE MAY NOT BE COPIED OR DISTRIBUTED IN ANY FORM WITHOUT THE      #
-# WRITTEN PERMISSION OF SKA SA.                                               #
-###############################################################################
-import sys
-
+# Copyright (c) 2017 National Research Foundation (South African Radio Astronomy Observatory)
+# BSD license - see LICENSE for details
 from setuptools import setup, find_packages
 
 
 setup(
     name='nosekatreport',
-    version='0.2',
-    description='Nose plugin for writing an annoted test report',
+    description='Nose plugin for writing an annotated test report',
     long_description=open('README.rst').read(),
-    author='Neilen Marais',
-    author_email='nmarais@ska.ac.za',
-    license='GPL',
+    author='cam',
+    author_email='cam@ska.ac.za',
+    license='BSD',
     packages=find_packages(exclude=['ez_setup']),
     install_requires=['Nose>=0.11.0', 'traceback2', 'ansicolors', 'numpy'],
     url='',
