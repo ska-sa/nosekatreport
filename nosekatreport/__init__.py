@@ -1,5 +1,6 @@
-# Copyright 2013 SKA South Africa (http://ska.ac.za/)
+# Copyright (c) 2013 National Research Foundation (South African Radio Astronomy Observatory)
 # BSD license - see LICENSE for details
+
 """Root of the nosekatreport package."""
 
 # BEGIN VERSION CHECK
