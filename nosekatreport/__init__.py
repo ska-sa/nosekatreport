@@ -1,4 +1,4 @@
-# Copyright (c) 2013 National Research Foundation (South African Radio Astronomy Observatory)
+# Copyright (c) 2017 National Research Foundation (South African Radio Astronomy Observatory)
 # BSD license - see LICENSE for details
 
 """Root of the nosekatreport package."""
