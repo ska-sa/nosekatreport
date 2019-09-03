@@ -36,8 +36,6 @@ except ImportError:
 
 __all__ = ['KatReportPlugin', 'Aqf', 'StoreTestRun']
 
-
-
 UNKNOWN = 'unknown'
 WAIVED = 'waived'
 PASS = 'passed'

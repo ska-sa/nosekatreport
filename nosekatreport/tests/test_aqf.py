@@ -9,7 +9,8 @@ from builtins import str
 # Copyright (c) 2017 National Research Foundation (South African Radio Astronomy Observatory)
 # BSD license - see LICENSE for details
 from nosekatreport import (Aqf, aqf_vr, intrusive, site_acceptance, site_only,
-                           slow, system)
+                           slow, system, StoreTestRun)
+from nosekatreport import KatReportPlugin
 
 
 @system('all')
@@ -100,3 +101,15 @@ class TestAqf(unittest.TestCase):
         Aqf.step('Open KatGUI and observe sensors')
         Aqf.checkbox('On the sensor display and observe that there are sensors')
         Aqf.end()
+
+@system('all')
+class TestStoreTestRun(unittest.TestCase):
+
+    def setUp(self):
+        self.storerun = StoreTestRun()
+
+    def tearDown(self):
+        pass
+
+    def test_test_name(self):
+        self.assertEqual(self.storerun.test_name, 'Unknown')

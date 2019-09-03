@@ -23,7 +23,7 @@ setup(
         [nose.plugins.0.10]
         nosekatreport = nosekatreport:KatReportPlugin
         """,
-    classifiers = [
+    classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "Environment :: Console",
         "Intended Audience :: Developers",
@@ -37,21 +37,21 @@ setup(
         "Topic :: Software Development :: Testing",
         "Topic :: Software Development :: Documentation"
         ],
-        platforms=["OS Independent"],
-        keywords="meerkat kat ska",
-        python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, <4",
-        setup_requires=["katversion"],
-        use_katversion=True,
-        install_requires=[
-            "elasticsearch>=5.4.0",
-            "future",
-            "futures; python_version<'3'",
-            "katconf",
-            "tornado>=4.3, <5.0; python_version<'3'",
-            "tornado>=4.3, <7.0; python_version>='3'",
-            "Nose>=0.11.0", "traceback2",
-            "ansicolors", "numpy"
-        ],
-        zip_safe=False,
-        test_suite="nose.collector",
+    platforms=["OS Independent"],
+    keywords="meerkat kat ska",
+    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, <4",
+    setup_requires=["katversion"],
+    use_katversion=True,
+    install_requires=[
+        "elasticsearch>=5.4.0",
+        "future",
+        "futures; python_version<'3'",
+        "katconf",
+        "tornado>=4.3, <5.0; python_version<'3'",
+        "tornado>=4.3, <7.0; python_version>='3'",
+        "Nose>=0.11.0", "traceback2",
+        "ansicolors", "numpy"
+    ],
+    zip_safe=False,
+    test_suite="nose.collector",
 )
