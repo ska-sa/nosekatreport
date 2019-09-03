@@ -1,9 +1,15 @@
+from __future__ import (absolute_import, division, print_function)
+
+from future import standard_library
+standard_library.install_aliases()
+
+import unittest
+from builtins import str
+
 # Copyright (c) 2017 National Research Foundation (South African Radio Astronomy Observatory)
 # BSD license - see LICENSE for details
-import unittest
-
-from nosekatreport import (Aqf, aqf_vr, system, slow, intrusive,
-                           site_only, site_acceptance)
+from nosekatreport import (Aqf, aqf_vr, intrusive, site_acceptance, site_only,
+                           slow, system)
 
 
 @system('all')
@@ -30,6 +36,18 @@ class TestAqf(unittest.TestCase):
         value_from_sensor = 10
         Aqf.equals(10, value_from_sensor,
                    'Test that the sensor has a value of 10')
+        Aqf.more(11, value_from_sensor,
+                 "Test that the sensor has a value more than 10")
+        Aqf.less(6, value_from_sensor,
+                 "Test that the sensor has a value less than 10")
+        Aqf.step("Set elevation limits")
+        min_ap_elevation = 15.0
+        max_ap_elevation = 90.0
+        Aqf.in_range(30, min_ap_elevation, max_ap_elevation,
+                     "Check if result falls within expected limits")
+        Aqf.step("Check that result has a value almost equal")
+        Aqf.almost_equals(10.2, value_from_sensor, 0.5,
+                          "Test that the sensor has an almost equal value to 10")
         Aqf.step("Check is system in on.")
         system_on = True
         Aqf.is_true(system_on, 'Check that the system_on switch is set.')
@@ -59,6 +77,7 @@ class TestAqf(unittest.TestCase):
         # Your code here.
         status = False
         Aqf.is_false(status, "Check that the sensor status is now false")
+        #Aqf.failed("Test failed")
         Aqf.end()
 
     @unittest.skip('CAM to implement')
@@ -81,7 +100,3 @@ class TestAqf(unittest.TestCase):
         Aqf.step('Open KatGUI and observe sensors')
         Aqf.checkbox('On the sensor display and observe that there are sensors')
         Aqf.end()
-
-
-if __name__ == '__main__':
-    unittest.main()
