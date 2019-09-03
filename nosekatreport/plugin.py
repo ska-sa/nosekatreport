@@ -1,12 +1,11 @@
-# Copyright (c) 2017 National Research Foundation (South African Radio Astronomy Observatory)
-# BSD license - see LICENSE for details
-from __future__ import with_statement
+from __future__ import (absolute_import, division, print_function, with_statement)
 
-import colors
+from future import standard_library
+standard_library.install_aliases()
+
 import datetime
 import json
 import logging
-import numpy as np
 import os
 import shutil
 import stat
@@ -16,6 +15,15 @@ import sys
 import tempfile
 import time
 import traceback
+from builtins import *
+from builtins import object, range, str
+
+import colors
+import numpy as np
+# Copyright (c) 2017 National Research Foundation (South African Radio Astronomy Observatory)
+# BSD license - see LICENSE for details
+from future.utils import with_metaclass
+from nose.plugins import Plugin
 
 log = logging.getLogger('nose.plugins.nosekatreport')
 
@@ -27,7 +35,6 @@ except ImportError:
     log.info('Matplotlib not found, will not be able to add matplotlib figures')
 
 
-from nose.plugins import Plugin
 __all__ = ['KatReportPlugin', 'Aqf', 'StoreTestRun']
 
 
@@ -139,7 +146,7 @@ class StoreTestRun(object):
         labels = test_name.split(".")
         test_label = str(labels.pop()).replace("_", ' ').title()
         try:
-            for _ in xrange(1, 4):
+            for _ in range(1, 4):
                 group_label = labels.pop()
         except IndexError:
             pass
@@ -662,7 +669,7 @@ class AqfLog(type):
                              (time, self._severity_colour(severity), message))
 
 
-class Aqf(object):
+class Aqf(with_metaclass(AqfLog, object)):
 
     """Automatic Qualification Framework.
 
@@ -674,10 +681,6 @@ class Aqf(object):
     These log messages will not be recorded or filtered by nose.
 
     """
-
-    # We are calling classmethods so we need to be extra sneaky. when we define
-    # a generic handler for the log messages.
-    __metaclass__ = AqfLog
 
     @classmethod
     def wait(cls, seconds, message=None):

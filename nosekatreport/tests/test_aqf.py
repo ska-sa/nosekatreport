@@ -1,9 +1,16 @@
+from __future__ import (absolute_import, division, print_function)
+
+from future import standard_library
+standard_library.install_aliases()
+
+import unittest
+from builtins import *
+from builtins import str
+
 # Copyright (c) 2017 National Research Foundation (South African Radio Astronomy Observatory)
 # BSD license - see LICENSE for details
-import unittest
-
-from nosekatreport import (Aqf, aqf_vr, system, slow, intrusive,
-                           site_only, site_acceptance)
+from nosekatreport import (Aqf, aqf_vr, intrusive, site_acceptance, site_only,
+                           slow, system)
 
 
 @system('all')
@@ -59,6 +66,7 @@ class TestAqf(unittest.TestCase):
         # Your code here.
         status = False
         Aqf.is_false(status, "Check that the sensor status is now false")
+        Aqf.failed("Test failed")
         Aqf.end()
 
     @unittest.skip('CAM to implement')
