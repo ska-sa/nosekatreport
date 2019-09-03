@@ -8,9 +8,8 @@ from builtins import str
 
 # Copyright (c) 2017 National Research Foundation (South African Radio Astronomy Observatory)
 # BSD license - see LICENSE for details
-from nosekatreport import (Aqf, aqf_vr, intrusive, site_acceptance, site_only,
-                           slow, system, StoreTestRun)
-from nosekatreport import KatReportPlugin
+from nosekatreport import (Aqf, aqf_vr, intrusive, site_acceptance, site_only, slow,
+                           system,  StoreTestRun, KatReportPlugin)
 
 
 @system('all')
@@ -78,7 +77,7 @@ class TestAqf(unittest.TestCase):
         # Your code here.
         status = False
         Aqf.is_false(status, "Check that the sensor status is now false")
-        #Aqf.failed("Test failed")
+        # Aqf.failed("Test failed")
         Aqf.end()
 
     @unittest.skip('CAM to implement')
