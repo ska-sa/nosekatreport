@@ -5,9 +5,6 @@ from __future__ import (absolute_import, division, print_function,
 # BSD license - see LICENSE for details
 from setuptools import find_packages, setup
 
-standard_library.install_aliases()
-
-
 setup(
     name="nosekatreport",
     description="Nose plugin for writing an annotated test report",
