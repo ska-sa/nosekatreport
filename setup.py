@@ -3,7 +3,6 @@ from __future__ import (absolute_import, division, print_function,
 
 # Copyright (c) 2017 National Research Foundation (South African Radio Astronomy Observatory)
 # BSD license - see LICENSE for details
-from future import standard_library
 from setuptools import find_packages, setup
 
 standard_library.install_aliases()
