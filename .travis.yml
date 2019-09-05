@@ -9,7 +9,7 @@ env:
     test_flags="--with-xunit --with-xcoverage --cover-package=${KATPACKAGE} --cover-inclusive"
  
 install:
-  -     pip install .
+  -     pip install tox-travis
 
 script:
-  -     tox
+  -    tox
