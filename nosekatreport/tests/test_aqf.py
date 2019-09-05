@@ -103,7 +103,6 @@ class TestAqf(unittest.TestCase):
     @aqf_vr('VR.CM.EXAMPLE.17')
     def test_aqf_decorators_3(self):
         Aqf.step("Setup")
-
         s = Aqf.sensor('sim.sensors.asc_wind_speed').get()
         Aqf.progress("The2 sensor was %s" % str(s))
         Aqf.sensor('sim.sensors.asc_wind_speed').set(10)
@@ -131,7 +130,6 @@ class TestStoreTestRun(unittest.TestCase):
 
     def test_test_name(self):
         self.assertEqual(self.storerun.test_name, 'Unknown')
-
 
 @system('all')
 class Test_state(unittest.TestCase):

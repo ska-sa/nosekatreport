@@ -55,11 +55,8 @@ setup(
     setup_requires=["katversion"],
     use_katversion=True,
     install_requires=[
-        "elasticsearch>=5.4.0",
         "future",
         "futures; python_version<'3'",
-        "tornado>=4.3, <5.0; python_version<'3'",
-        "tornado>=4.3, <7.0; python_version>='3'",
         "Nose>=0.11.0", "traceback2",
         "ansicolors", "numpy"
     ],
