@@ -58,13 +58,11 @@ setup(
         "elasticsearch>=5.4.0",
         "future",
         "futures; python_version<'3'",
-        "katconf",
         "tornado>=4.3, <5.0; python_version<'3'",
         "tornado>=4.3, <7.0; python_version>='3'",
         "Nose>=0.11.0", "traceback2",
         "ansicolors", "numpy"
     ],
-    dependency_links=['git+https://github.com/ska-sa/katconf.git'],
     zip_safe=False,
     test_suite="nose.collector",
 )
