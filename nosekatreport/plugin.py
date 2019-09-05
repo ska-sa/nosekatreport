@@ -1,4 +1,5 @@
 # Copyright (c) 2017 National Research Foundation (South African Radio Astronomy Observatory)
+# BSD license - see LICENSE for details
 from __future__ import (absolute_import, division, print_function, with_statement)
 
 from future import standard_library
@@ -20,8 +21,7 @@ from builtins import object
 
 import colors
 import numpy as np
-# Copyright (c) 2017 National Research Foundation (South African Radio Astronomy Observatory)
-# BSD license - see LICENSE for details
+
 from future.utils import with_metaclass
 from nose.plugins import Plugin
 
