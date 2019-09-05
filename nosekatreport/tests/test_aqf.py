@@ -1,13 +1,13 @@
+
+# Copyright (c) 2017 National Research Foundation (South African Radio Astronomy Observatory)
+# BSD license - see LICENSE for details
 from __future__ import (absolute_import, division, print_function)
 
 from future import standard_library
 standard_library.install_aliases()
 
 import unittest
-from builtins import str
 
-# Copyright (c) 2017 National Research Foundation (South African Radio Astronomy Observatory)
-# BSD license - see LICENSE for details
 from nosekatreport import (Aqf, aqf_vr, intrusive, site_acceptance, site_only, slow,
                            system,  StoreTestRun, KatReportPlugin)
 from nosekatreport.plugin import _state

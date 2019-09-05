@@ -1,3 +1,4 @@
+# Copyright (c) 2017 National Research Foundation (South African Radio Astronomy Observatory)
 from __future__ import (absolute_import, division, print_function, with_statement)
 
 from future import standard_library
@@ -15,7 +16,7 @@ import sys
 import tempfile
 import time
 import traceback
-from builtins import object, range, str
+from builtins import object
 
 import colors
 import numpy as np
