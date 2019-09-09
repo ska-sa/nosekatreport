@@ -1,5 +1,10 @@
 # Copyright (c) 2017 National Research Foundation (South African Radio Astronomy Observatory)
 # BSD license - see LICENSE for details
+from __future__ import (absolute_import, division, print_function)
+
+from future import standard_library
+standard_library.install_aliases()
+
 __all__ = ['satisfies_requirement', 'satisfies_vr',
            'site_only', 'site_acceptance', 'generic_test',
            'system', 'aqf_requirements', 'aqf_vr', 'intrusive', 'slow',

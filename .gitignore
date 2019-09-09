@@ -104,3 +104,10 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# mac user files
+.DS_Store
+._.DS_Store
+
+# output files
+cover/
