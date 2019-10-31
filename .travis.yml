@@ -6,11 +6,13 @@ python:
   - "3.6"
 
 env: 'KATPACKAGE=${PWD##*/}
-  test_flags="--with-xunit --with-xcoverage --cover-package=${KATPACKAGE}
-  --cover-inclusive"'
+  test_flags="--with-xunit --with-xcoverage --cover-package=${KATPACKAGE} --cover-inclusive"'
 
 install:
-  - "pip install tox-travis"
+  - pip install tox-travis
+
+before_script:
+  - bash lint_diff.sh -r ${KATPACKAGE}
 
 script:
   - tox
