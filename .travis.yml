@@ -16,7 +16,7 @@ install:
     -   pip install tox-travis
 
 before_script:
-    -   bash lint_diff.sh -r ${KATPACKAGE}
+    -   bash lint_diff.sh -r $KATPACKAGE
 
 script:
     -   tox

@@ -84,8 +84,11 @@ REMOTE_DEVELOP_REF="${REMOTE}/${PARENT_BRANCH}"
 echo -e "\nFetching ${REMOTE_DEVELOP_REF}"
 echo -e '------------------------------------------------------------------------------\n'
 
+# Try to fetch refs from github ssh, if fails fetch from https
 git fetch -v --progress git@github.com:"${PROJECT}.git" \
-    "${PARENT_BRANCH}":refs/remotes/"${REMOTE_DEVELOP_REF}" "${PARENT_BRANCH}" || true;
+    "${PARENT_BRANCH}":refs/remotes/"${REMOTE_DEVELOP_REF}" "${PARENT_BRANCH}" || \
+git fetch -v --progress https://github.com/"${PROJECT}.git" \
+    "${PARENT_BRANCH}":refs/remotes/"${REMOTE_DEVELOP_REF}" "${PARENT_BRANCH}"
 
 LOCAL_BRANCH_SHORT_HASH=$(git rev-parse --short "${LOCAL_BRANCH_REF}")
 REMOTE_DEVELOP_SHORT_HASH=$(git rev-parse --short "${REMOTE_DEVELOP_REF}")
