@@ -3,7 +3,7 @@
 # License: BSD 3 clause
 # Ref: https://github.com/sardana-org/sardana/blob/develop/ci/lint_diff.sh
 
-# This script is used on Jenkins CI (linting stage) to check that PRs does not add
+# This script is used on Travis CI (linting stage) to check that PRs does not add
 # any linting violations.
 
 # It relies on two things:
@@ -16,6 +16,7 @@
 # Additional features:
 #   - bash scripts/lint_diff.sh can be run locally for quick turn-around
 #     (and it accepts additional linter options)
+
 LINTER=${LINTER:='flake8'}
 PARENT_BRANCH=${PARENT_BRANCH:="master"}
 EXT=${EXT:="\.py$"}
