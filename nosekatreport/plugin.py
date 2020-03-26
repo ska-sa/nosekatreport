@@ -1127,7 +1127,7 @@ class Aqf(object):
             cls.passed(description)
             return True
         else:
-            cls.failed('Result {result} not less than {expected} - {description}'
+            cls.failed('Result {result} not more than {expected} - {description}'
                        .format(**locals()))
             return False
 
